@@ -1,7 +1,7 @@
 
 # Radio Buena Vida Project
 
-Welcome to the Radio Buena Vida project! This project is a web application built with Django (backend) and React (frontend), with PostgreSQL as the database. It also integrates with Dropbox for image storage.
+This project is a web application built with Django (backend) and React (frontend), with PostgreSQL as the database. It also integrates with Dropbox for image storage.
 
 ## Table of Contents
 
