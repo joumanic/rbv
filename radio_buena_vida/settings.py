@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-c=m6!upul!kx&*w78zw!@r^y*c&#1%b+0i+)q=uzl75y-js7n6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['rbv.onrender.com']
+ALLOWED_HOSTS = ['rbv.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -131,3 +131,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DROPBOX_ACCESS_TOKEN = 'sl.B8h3swCEczf2HLU92hzDGF-o6qgCemLv4BQyOEmHxtcSl6voTbe1KHPbAHyp1DiKykA8swyLnZ8STYt_bl7vEWreI5kqaThVNG2G7a2XC_0VvrzVXW0W6W-fW_bqbPVSBiZk93q9ocRM'
