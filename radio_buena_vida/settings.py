@@ -52,7 +52,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
+CORS_ALLOWED_ORIGINS = [
+    "https://rbv.vercel.app",
+]
 ROOT_URLCONF = 'radio_buena_vida.urls'
 
 TEMPLATES = [
