@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c=m6!upul!kx&*w78zw!@r^y*c&#1%b+0i+)q=uzl75y-js7n6'
+SECRET_KEY = DROPBOX_ACCESS_TOKEN = config('DROPBOX_ACCESS_TOKEN')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
