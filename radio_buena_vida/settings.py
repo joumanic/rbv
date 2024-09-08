@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,4 +134,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DROPBOX_ACCESS_TOKEN = 'sl.B8h3swCEczf2HLU92hzDGF-o6qgCemLv4BQyOEmHxtcSl6voTbe1KHPbAHyp1DiKykA8swyLnZ8STYt_bl7vEWreI5kqaThVNG2G7a2XC_0VvrzVXW0W6W-fW_bqbPVSBiZk93q9ocRM'
+DROPBOX_ACCESS_TOKEN = config('DROPBOX_ACCESS_TOKEN')
