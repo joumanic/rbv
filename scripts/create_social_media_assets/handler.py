@@ -15,10 +15,6 @@ FONT_PATH = "scripts/data/fonts/din2014_demi.otf"
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04
 FONT_GENRE_SIZE_RATIO = 0.035
-IMAGE_DIR = "scripts/data/show_images"
-OUTPUT_DIR = "scripts/data/rbv_show_images"
-RBV_LOGO_FOLDER = "scripts/data/rbv_monthly_colors"
-MONTHLY_COLORS_PATH = "scripts/data/monthly_colors/monthly_colors.xlsx"
 
 # TODO handle different sizes of images so the branding is added with respective sizing
 
@@ -104,6 +100,7 @@ def process_image(image_path):
             draw = ImageDraw.Draw(imgSquare) # make draw instance in square canvas
             # Load the DIN 2014 font
             try:
+                # TODO: Point Font Path to Dropbox
                 fontSize = int(imageHeight * FONT_SHOW_SIZE_RATIO)  # Calculate font size based on image height
                 fontShow = ImageFont.truetype(FONT_PATH, fontSize)  # Adjust font path
             except IOError:
@@ -165,12 +162,14 @@ def process_image(image_path):
             draw.text(genreTextPosition, genreText, font=fontGenre, fill="black") # put Genre Text in the image
 
             # Add RBV logo into the show
-            with Image.open(rbvBrand["logoFilePath"]) as rbvLogo:
+            logoFileResponse = download_file(filePath=rbvBrand["logoFilePath"])
+            with Image.open(BytesIO(logoFileResponse.content)) as rbvLogo:
                 rbvLogo = rbvLogo.convert("RGBA")
             imgSquare = overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.05,0.075))
 
-             # Add RBV website logo into the show
-            with Image.open(rbvBrand["websiteLogoFilePath"]) as rbvWebsiteLogo:
+            # Add RBV website logo into the show
+            websiteLogoResponse = download_file(filePath=rbvBrand["websiteLogoFilePath"])
+            with Image.open(BytesIO(websiteLogoResponse.content)) as rbvWebsiteLogo:
                 rbvWebsiteLogo = rbvWebsiteLogo.convert("RGBA")
             imgSquare = overlay_image(imgSquare, rbvWebsiteLogo, 0.25, offsetPercentage=(0.05,0.025))
             return imgSquare
@@ -180,27 +179,30 @@ def process_image(image_path):
             return None  # indicate failure if an exception was raised
 
 def get_current_month_assets():
-     """
+    """
     Fetches the assets for the current month.
 
     Returns:
     - dict: A dictionary containing the current month's assets including logo paths and colors.
     """
-     currentMonthName = datetime.now().strftime("%B")
-     rbvLogoFile = [file for file in os.listdir(RBV_LOGO_FOLDER) if currentMonthName.lower() in file.lower() and 'logo' in file.lower()][0]
-     rbvLogoPath = os.path.join(RBV_LOGO_FOLDER, rbvLogoFile)
-     rbvWebsiteLogoFile = [file for file in os.listdir(RBV_LOGO_FOLDER) if currentMonthName.lower() in file.lower() and 'website' in file.lower()][0]
-     rbvWebsiteLogoPath = os.path.join(RBV_LOGO_FOLDER, rbvWebsiteLogoFile)
-     monthlyColorsDf = pd.read_excel(MONTHLY_COLORS_PATH, header=0)
-     hexColor = monthlyColorsDf["Color"].loc[monthlyColorsDf["Month"]==currentMonthName].values[0]
-     rbvBrand = {
+    # TODO: Point files to dropbox
+    currentMonthName = datetime.now().strftime("%B")
+    brandFolder = get_folder(folderPath=os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'))
+    rbvLogoFile = [file for file in brandFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'logo' in file['name'].lower()][0]
+    rbvWebsiteLogoFile = [file for file in brandFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'website' in file['name'].lower()][0]
+    monthlyColorFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'),'monthly_colors.xlsx'))
+    monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile.content))
+
+
+    hexColor = monthlyColorsDf["Color"].loc[monthlyColorsDf["Month"]==currentMonthName].values[0]
+    rbvBrand = {
         "month": currentMonthName,
-        "logoFilePath":rbvLogoPath,
-        "websiteLogoFilePath": rbvWebsiteLogoPath,
+        "logoFilePath":rbvLogoFile['path_lower'],
+        "websiteLogoFilePath": rbvWebsiteLogoFile['path_lower'],
         "hexColor": hexColor,
         "rgbColor": hex_to_rgb(hexColor)
     }
-     return rbvBrand
+    return rbvBrand
 
 
 def zoom_image(img: Image, zoomFactor: float =1.5) -> Image:

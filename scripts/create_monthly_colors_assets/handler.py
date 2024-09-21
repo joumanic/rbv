@@ -2,10 +2,11 @@
 Description:
 
 '''
-
+from io import BytesIO
 import os 
 from PIL import Image
 import pandas as pd
+from dropbox.services.files import get_folder,download_file, upload_file
 
 # Temporary paths while we integrate in Dropbox
 RBV_BRAND_FOLDER = "scripts/data/rbv_brand"
@@ -31,19 +32,22 @@ MONTH_NAME_TO_NUMBER = {
 def logic_handler():
     # TODO look for folder with blank assets
     # Load and replace white color to monthly color for Radio Buena Vida Logo
-    monthlyColorsDf = pd.read_excel(MONTHLY_COLORS, header=0)
+    monthlyColorFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'),'monthly_colors.xlsx'))
+    monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile.content))
     for index, row in monthlyColorsDf.iterrows():
         monthName = row['Month']
         monthNumber = MONTH_NAME_TO_NUMBER.get(monthName.replace(" ",""))
         hexColor = row['Color']
         monthlyColor = hex_to_rgb(hexColor)
 
-        brandFiles = [file for file in os.listdir(RBV_BRAND_FOLDER) if '.DS_Store' not in file]
+        brandTemplateFolder = get_folder(os.getenv('DROPBOX_RBV_BRAND_TEMPLATES_FOLDER'))
+
+        brandTemplates = [file for file in brandTemplateFolder['entries']]
         
-        for fileName in brandFiles:
-            filePath = os.path.join(RBV_BRAND_FOLDER, fileName)
-            fileBaseName, _ = os.path.splitext(fileName)
-            with Image.open(filePath) as logo:
+        for file in brandTemplates:
+            fileDownlaodResponse = download_file(filePath=file['path_lower'])
+            fileByte = BytesIO(fileDownlaodResponse.content)
+            with Image.open(fileByte) as logo:
                 logo = logo.convert("RGBA")
                 data = logo.getdata()
                 new_data = [
@@ -51,10 +55,11 @@ def logic_handler():
                     for item in data
                 ]
                 logo.putdata(new_data)
+                byte_io = BytesIO()
+                logo.save(byte_io, format='PNG')
+
+                upload_file(path= os.path.join(os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'),f"{monthNumber}_{monthName}_{file['name']}"), data=byte_io.getvalue())
                 
-                # Save the new logo with the month number and month name in the filename
-                output_path = os.path.join(OUTPUT_FOLDER, f"{monthNumber}_{monthName}_{fileBaseName}.png")
-                logo.save(output_path)
 
     # TODO process assets to Monthly Colors file specifications
     # TODO upload assets to Dropbox
