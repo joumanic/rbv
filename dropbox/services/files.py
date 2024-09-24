@@ -91,9 +91,3 @@ def upload_file(path:str,data:bytes):
         logger.error(f"An unexpected error ocurred: {err}")
     
     return None 
-
-
-if __name__ == '__main__':
-    resp = get_folder(folderPath="/File requests/Images TEST")
-    file = download_file(filePath=resp['entries'][0]['path_lower'])
-    print(resp)

@@ -11,12 +11,11 @@ import logging
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from dropbox.services.files import get_folder, download_file, upload_file
 
-FONT_PATH = "scripts/data/fonts/din2014_demi.otf"
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04
 FONT_GENRE_SIZE_RATIO = 0.035
-
-# TODO handle different sizes of images so the branding is added with respective sizing
+SHOW_TEXT = "David Barbarossa's Simple Food"
+GENRE_TEXT_TEST = "Disco | Boogie | Leftfield"
 
 def logic_handler(event, context):
     """
@@ -41,8 +40,9 @@ def logic_handler(event, context):
                 img = process_image(image_path=imageDownloadResponse.content)
                 if img:
                     byte_io = BytesIO()
+                    showName = rbv_file_naming(imageFile['name'])
                     img.save(byte_io, format='JPEG')  # Save the image to the BytesIO object
-                    upload_file(path=os.path.join(os.getenv('DROPBOX_RBV_SHOW_IMAGES'),imageFile['name']), data=byte_io.getvalue())
+                    upload_file(path=os.path.join(os.getenv('DROPBOX_RBV_SHOW_IMAGES'),showName), data=byte_io.getvalue())
                 else:
                     raise Exception
             except Exception as e:
@@ -57,6 +57,12 @@ def logic_handler(event, context):
             "statusCode": 300,
             "body": 'Not Triggered'
         }
+
+def rbv_file_naming(showName):
+    now = datetime.now()
+    formattedDate = now.strftime("%d.%m")
+    showFileName = f"{formattedDate} {showName}"
+    return showFileName
 
 def process_image(image_path):
     """
@@ -78,7 +84,6 @@ def process_image(image_path):
             # Blur and Zoom image
             imgBlurZoom = zoom_image(blur_image(imgCopy)) 
             
-
             # Create square canvas for instagram post
             size = min(imgBlurZoom.width, imgBlurZoom.height) # determine the size for the square image
             imgSquare = Image.new("RGB", (size,size)) # create a square canvas
@@ -98,29 +103,29 @@ def process_image(image_path):
             # Calculate text size based on image size
             imageWidth, imageHeight = imgSquare.size
             draw = ImageDraw.Draw(imgSquare) # make draw instance in square canvas
+
             # Load the DIN 2014 font
             try:
-                # TODO: Point Font Path to Dropbox
+                fontFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'din2014_demi.otf'))
+                font = BytesIO(fontFile.content)
                 fontSize = int(imageHeight * FONT_SHOW_SIZE_RATIO)  # Calculate font size based on image height
-                fontShow = ImageFont.truetype(FONT_PATH, fontSize)  # Adjust font path
+                fontShow = ImageFont.truetype(font, fontSize)  # Adjust font path
             except IOError:
                 logging.error("Could not load DIN 2014 font. Using default font for show name.")
                 fontShow = ImageFont.load_default()
 
-            showText = "David Barbarossa's Simple Food"
+            showText = SHOW_TEXT
             showTextBbox = draw.textbbox((0, 0), showText, font=fontShow)
             showTextSize = (showTextBbox[2] - showTextBbox[0], showTextBbox[3] - showTextBbox[1])
+
             # Calculate dynamic position based on image size
             positionRatio=(0.05, 0.03)
             showTextX = int(imageWidth * positionRatio[0])
             showTextY = int(imageHeight * positionRatio[1])
             showTextPosition = (showTextX, showTextY)
 
-            
-            
-
             # Define the ratio
-            marginRatio = 0.015  # 5% of the image dimensions
+            marginRatio = 0.015  # 15% of the image dimensions
             # Define the rectangle roundness
             radius = 40
             # Calculate the rectangle margin based on the image dimensions
@@ -137,15 +142,16 @@ def process_image(image_path):
             draw.text(showTextPosition, showText, font=fontShow, fill="black") # draw show text in the square canvas
 
             # Make Genres' Text
-             # Load the DIN 2014 font
             try:
+                fontFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'din2014_demi.otf'))
+                font = BytesIO(fontFile.content)
                 fontSize = int(imageHeight * FONT_GENRE_SIZE_RATIO)  # Calculate font size based on image height
-                fontGenre = ImageFont.truetype(FONT_PATH, fontSize)  # Adjust font path
+                fontGenre = ImageFont.truetype(font, fontSize)  # Adjust font path
             except IOError:
                 logging.error("Could not load DIN 2014 font. Using default font for shgenreow name.")
                 fontGenre = ImageFont.load_default()
 
-            genreText = "Disco | Boogie | Leftfield"
+            genreText = GENRE_TEXT_TEST
             genreTextBbox = draw.textbbox((0, 0), genreText, font=fontGenre)
             genreTextSize = (genreTextBbox[2] - genreTextBbox[0], genreTextBbox[3] - genreTextBbox[1])
             genreTextX = int(imageWidth * positionRatio[0])
@@ -185,12 +191,11 @@ def get_current_month_assets():
     Returns:
     - dict: A dictionary containing the current month's assets including logo paths and colors.
     """
-    # TODO: Point files to dropbox
     currentMonthName = datetime.now().strftime("%B")
-    brandFolder = get_folder(folderPath=os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'))
-    rbvLogoFile = [file for file in brandFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'logo' in file['name'].lower()][0]
-    rbvWebsiteLogoFile = [file for file in brandFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'website' in file['name'].lower()][0]
-    monthlyColorFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_BRAND_FOLDER'),'monthly_colors.xlsx'))
+    coloredAssetsFolder = get_folder(folderPath=os.getenv('DROPBOX_RBV_BRAND_COLORED_ASSETS_FOLDER'))
+    rbvLogoFile = [file for file in coloredAssetsFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'logo' in file['name'].lower()][0]
+    rbvWebsiteLogoFile = [file for file in coloredAssetsFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'website' in file['name'].lower()][0]
+    monthlyColorFile = download_file(filePath=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
     monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile.content))
 
 
