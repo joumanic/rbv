@@ -1,23 +1,25 @@
 from file_handler import FileHandler
 from image_processor import ImageProcessor
-from asset_manager import AssetManager
+from brand import RadioBuenaVida
+
+from dropbox.services.files import DropboxService
+
+POST_SQUARE_SIZE= 1080
+FONT_SHOW_SIZE_RATIO = 0.04
+FONT_GENRE_SIZE_RATIO = 0.035
+SHOW_TEXT = "David Barbarossa's Simple Food"
+GENRE_TEXT_TEST = "Disco | Boogie | Leftfield"
 
 class EventHandler:
     def __init__(self):
-        self.file_handler = FileHandler()
-        self.image_processor = ImageProcessor()
-        self.asset_manager = AssetManager()
+        self.rbv = RadioBuenaVida()
     
-    def handle_event(self, event, context):
+    def handle_event(self, event):
         if event.get("trigger"):
-            files = self.file_handler.get_images()
-            for file in files:
-                try:
-                    img_data = self.file_handler.file_download(file['path_lower'])
-                    processed_image = self.image_processor.process_image(img_data, file['name'])
-                    self.file_handler.upload_image(processed_image, file['name'])
-                except Exception as e:
-                    print(f"Error processing file {file['name']}: {e}")
-                return {"statusCode": 200, "body": "Images processed and uploaded successfully"}
+            self.rbv.create_social_media_assets()
+            
+            return {"statusCode": 200, "body": "Successful Event"}
         else:
-            return {"statusCode": 300, "body": "Not Triggered"} 
+            return {"statusCode": 300, "body": "Not Triggered"}
+
+

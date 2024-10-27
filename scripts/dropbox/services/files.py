@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class DropboxService:
     def __init__(self, api_token=None):
-        self.api_token = api_token or os.getenv("DROPBOX_TOKEN")
+        self.api_token = os.getenv("DROPBOX_TOKEN")
         self.base_url = "https://api.dropboxapi.com/2/files/"
         self.content_url = "https://content.dropboxapi.com/2/files/"
 

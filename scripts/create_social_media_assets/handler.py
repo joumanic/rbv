@@ -93,6 +93,7 @@ def process_image(image_path):
             # Make circled image and paste it on top of blurred image
             maskedImage = circle_mask(img,rbvBrand['rgbColor'],0.04)
             
+            # TODO: Look into how to implement this process
             maskedImagePosition  = (
                 (imgSquare.width - maskedImage.width) // 2,
                 (imgSquare.height - maskedImage.height) // 2
@@ -123,6 +124,8 @@ def process_image(image_path):
             showTextX = int(imageWidth * positionRatio[0])
             showTextY = int(imageHeight * positionRatio[1])
             showTextPosition = (showTextX, showTextY)
+
+            genreTextY = showTextPosition[1] + showTextSize[1] + int(imageHeight * 0.04)  # Adjust vertical position
 
             # Define the ratio
             marginRatio = 0.015  # 15% of the image dimensions
