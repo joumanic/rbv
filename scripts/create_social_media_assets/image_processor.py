@@ -12,7 +12,7 @@ class ImageProcessor:
             img.convert(convert_to)
             return img
         except ValueError as e:
-            raise ValueError(f"Invalid conversion mode: {convert_to}. Valid modes are: {self.VALID_MODES}")
+            raise ValueError(f"Invalid conversion mode: {convert_to}")
 
     def process_image(self, image_data, show_name):
         img = Image.open(BytesIO(image_data))

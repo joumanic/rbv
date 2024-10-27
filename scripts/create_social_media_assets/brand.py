@@ -14,6 +14,21 @@ FONT_SHOW_SIZE_RATIO = 0.04
 FONT_GENRE_SIZE_RATIO = 0.035
 SHOW_TEXT = "David Barbarossa's Simple Food"
 GENRE_TEXT_TEST = "Disco | Boogie | Leftfield"
+# Dictionary to map month names to month numbers
+MONTH_NAME_TO_NUMBER = {
+    "January": 1,
+    "February": 2,
+    "March": 3,
+    "April": 4,
+    "May": 5,
+    "June": 6,
+    "July": 7,
+    "August": 8,
+    "September": 9,
+    "October": 10,
+    "November": 11,
+    "December": 12
+}
 
 class RadioBuenaVida:
     def __init__(self):
@@ -44,6 +59,7 @@ class RadioBuenaVida:
                     font_ratio=FONT_SHOW_SIZE_RATIO,
                     rectangle_color=rbvBrand["rgbColor"],
                     is_genre=False)
+                font = self.file_handler.get_font()
                 self.image_processor.add_text(
                     img=imgSquare, 
                     font = font,
@@ -69,10 +85,49 @@ class RadioBuenaVida:
                 showName = self.rbv_file_naming(file['name'])
                 self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName)
             except Exception as e:
-                print(f"Error processing file {file['name']}: {e}")
+                logging.info(f"Error processing file {file['name']}: {e}")
             logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
         return {"statusCode": 200, "body": "Images processed and uploaded successfully"}
     
+    def create_monthly_colors_assets(self):
+        monthlyColorFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
+        monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile))
+        try:
+            for index, row in monthlyColorsDf.iterrows():
+                monthName = row['Month']
+                monthNumber = MONTH_NAME_TO_NUMBER.get(monthName.replace(" ",""))
+                hexColor = row['Color']
+                monthlyColor = hex_to_rgb(hexColor)
+
+                brandTemplateFolder = self.dropbox_service.get_folder(os.getenv('DROPBOX_RBV_BRAND_TEMPLATES_FOLDER'))
+
+                brandTemplates = [file for file in brandTemplateFolder['entries']]
+                
+                for file in brandTemplates:
+                    fileName = f"{monthNumber}_{monthName}_{file['name']}"
+                    fileDownlaodResponse = self.dropbox_service.download_file(file_path=file['path_lower'])
+                    logo = self.file_handler.open_image(fileDownlaodResponse)
+                    logo = self.image_processor.convert_image(img=logo, convert_to="RGBA")
+                    
+                    data = logo.getdata()
+                    new_data = [
+                        (monthlyColor[0], monthlyColor[1], monthlyColor[2], item[3]) if item[:3] == (255, 255, 255) else item
+                        for item in data
+                    ]
+                    logo.putdata(new_data)
+                    byte_io = BytesIO()
+                    if logo.mode == 'CMYK':
+                        # Convert to RGB (removing alpha channel)
+                        logo = self.image_processor.convert_image(img=logo, convert_to="RGBA")
+                        logo.save(byte_io, format='JPEG')
+                    else:
+                        logo.save(byte_io, "PNG")
+                    self.dropbox_service.upload_file(path= os.path.join(os.getenv('DROPBOX_RBV_BRAND_COLORED_ASSETS_FOLDER'),fileName), data=byte_io.getvalue())
+                    logging.info({"statusCode": 200, "body": f"Asset {fileName} created and uploaded successfully"})
+        except Exception as e:
+                logging.info(f"Error creating {fileName} monthly color assets: {e}")
+        return {"statusCode": 200, "body": "RBV asset images processed and uploaded succesfully"} 
+
     def rbv_assets(self):
         currentMonthName = datetime.now().strftime("%B")
         coloredAssetsFolder = self.dropbox_service.get_folder(folder_path=os.getenv('DROPBOX_RBV_BRAND_COLORED_ASSETS_FOLDER'))
