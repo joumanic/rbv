@@ -2,7 +2,7 @@ from file_handler import FileHandler
 from image_processor import ImageProcessor
 from brand import RadioBuenaVida
 
-from dropbox.services.files import DropboxService
+from scripts.dropbox.files import DropboxService
 
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04

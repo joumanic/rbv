@@ -1,7 +1,8 @@
 
 from file_handler import FileHandler
 from image_processor import ImageProcessor
-from dropbox.services.files import DropboxService
+from scripts.dropbox.files import DropboxService
+from scripts.db.db import DatabaseHandler
 from datetime import datetime
 from io import BytesIO
 from utility import hex_to_rgb
@@ -13,8 +14,8 @@ from PIL import Image
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04
 FONT_GENRE_SIZE_RATIO = 0.035
-SHOW_TEXT = "David Barbarossa's Simple Food"
-GENRE_TEXT_TEST = "Disco | Boogie | Leftfield"
+GENRE_TEXT_TEST = "dd"
+SHOW_TEXT = "kk"
 # Dictionary to map month names to month numbers
 MONTH_NAME_TO_NUMBER = {
     "January": 1,
@@ -36,13 +37,15 @@ class RadioBuenaVida:
         self.dropbox_service = DropboxService()
         self.file_handler = FileHandler(self.dropbox_service)
         self.image_processor = ImageProcessor()
+        self.database_handler = DatabaseHandler()
 
     def create_social_media_assets(self):
-        files = self.file_handler.get_images()
+        self.dropbox_service.download_shareable_link()
+        files = self.dropbox_service.get_images(folder_path=os.getenv("DROPBOX_SHOW_IMAGES"))
         rbvBrand = self.rbv_assets()
         for file in files:
             try:
-                img_data = self.file_handler.file_download(file['path_lower']) # DONE
+                img_data = self.file_handler.file_download(file['path_lower']) 
                 img = self.file_handler.open_image(img_data)
                 imgBlurZoom = self.image_processor.zoom(self.image_processor.blur((img)))
                 imgSquare = self.image_processor.instagram_square_canvas(img=imgBlurZoom)
@@ -84,7 +87,7 @@ class RadioBuenaVida:
                 # Save the image as JPEG
                 imgSquare.save(byte_io, format='JPEG')
                 showName = self.rbv_file_naming(file['name'])
-                self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName)
+                self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName ,path=os.getenv("DROPBOX_RBV_SHOW_IMAGES"))
             except Exception as e:
                 logging.info(f"Error processing file {file['name']}: {e}")
             logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
@@ -151,3 +154,4 @@ class RadioBuenaVida:
         formattedDate = now.strftime("%d.%m")
         showFileName = f"{formattedDate} {showName}"
         return showFileName
+

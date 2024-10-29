@@ -2,7 +2,7 @@ import unittest
 import json
 import os
 from unittest.mock import patch, MagicMock
-from dropbox.services.files import get_images
+from scripts.dropbox.files import get_images
 
 url = "https://api.dropboxapi.com/2/files/list_folder"
 class TestGetImages(unittest.TestCase):
