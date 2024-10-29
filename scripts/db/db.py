@@ -1,8 +1,9 @@
 # root/scripts/db_handler.py
 
 import psycopg2
-from db_config import DATABASE_CONFIG
+from db.db_config import DATABASE_CONFIG
 import logging
+import pandas as pd
 
 class DatabaseHandler:
     def __init__(self):
@@ -39,11 +40,12 @@ class DatabaseHandler:
         try:
             self.cursor.execute(
             '''SELECT *
-            FROM shows
-            WHERE created_at::date = (show_date - INTERVAL '1 day' * (EXTRACT(DOW FROM show_date) + 1) % 7);'''
+            FROM public.radio_show
+            WHERE created_at::date < (
+            show_date - (EXTRACT(DOW FROM show_date) + 1 + 1) % 7 * INTERVAL '1 day')'''
             )
-            self.connection.commit()
-            return self.cursor.fetchall()
+            results = pd.DataFrame(self.cursor.fetchall(), columns=[desc[0] for desc in self.cursor.description])
+            return results
         except Exception as e:
             logging.error(f"Error executing get_current_radio_show query: {e}")
             return None

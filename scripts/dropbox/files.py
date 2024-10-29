@@ -2,6 +2,7 @@ import requests
 import logging
 import json
 import os
+import tempfile
 from requests.exceptions import RequestException, HTTPError, Timeout, ConnectionError
 
 # Configure logging
@@ -90,14 +91,14 @@ class DropboxService:
 
             # Check if the request was successful
             if response.status_code == 200:
-                # Write the content to a file
-                file_path = "downloaded_image.jpg"  # Define the file path
-                file = open(file_path, "wb")  # Open file in write binary mode
-                file.write(response.content)
-                logging.info("Image downloaded successfully!")
-                return file  # Return the file object
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    # Write the content to the temporary file
+                    temp_file.write(response.content)
+                    logging.info("File downloaded successfully!")
+                    temp_file_path = temp_file.name  # Get the name of the temporary file
+                    return temp_file_path  # Return the path of the temporary file
             else:
-                logging.error(f"Failed to download image. Status code: {response.status_code}")
+                logging.error(f"Failed to download file. Status code: {response.status_code}")
                 return None  # Return None if the download fails
 
         except requests.exceptions.RequestException as e:

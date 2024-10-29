@@ -9,7 +9,6 @@ from utility import hex_to_rgb
 import logging
 import os
 import pandas as pd
-from PIL import Image
 
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04
@@ -40,13 +39,11 @@ class RadioBuenaVida:
         self.database_handler = DatabaseHandler()
 
     def create_social_media_assets(self):
-        self.dropbox_service.download_shareable_link()
-        files = self.dropbox_service.get_images(folder_path=os.getenv("DROPBOX_SHOW_IMAGES"))
+        radio_shows = self.database_handler.get_current_radio_shows()
         rbvBrand = self.rbv_assets()
-        for file in files:
+        for _, show in radio_shows.iterrows():
             try:
-                img_data = self.file_handler.file_download(file['path_lower']) 
-                img = self.file_handler.open_image(img_data)
+                img = self.file_handler.open_image(image_data=(self.dropbox_service.download_shareable_link(show["show_image"])))
                 imgBlurZoom = self.image_processor.zoom(self.image_processor.blur((img)))
                 imgSquare = self.image_processor.instagram_square_canvas(img=imgBlurZoom)
                 img = self.image_processor.circle_mask(img=img, borderColour=rbvBrand['rgbColor'], borderthicknessRatio=0.04)
@@ -55,10 +52,11 @@ class RadioBuenaVida:
                     (imgSquare.height - img.height) // 2
                     ) # Calculate the position to paste the masked image (centre)
                 imgSquare.paste(img, maskedImagePosition, img)
+                genres = " | ".join([show[f"genre_{i}"] for i in range(1, 4) if show.get(f"genre_{i}")])
                 font = self.file_handler.get_font()
                 self.image_processor.add_text(
                     img=imgSquare,
-                    text=SHOW_TEXT,
+                    text=show["show_name"],
                     font = font,
                     font_ratio=FONT_SHOW_SIZE_RATIO,
                     rectangle_color=rbvBrand["rgbColor"],
@@ -68,7 +66,7 @@ class RadioBuenaVida:
                     img=imgSquare, 
                     font = font,
                     font_ratio=FONT_GENRE_SIZE_RATIO,
-                    text=GENRE_TEXT_TEST,
+                    text=genres,
                     rectangle_color=rbvBrand["rgbColor"],
                     is_genre=True)
                 logoFileResponse = self.dropbox_service.download_file(file_path=rbvBrand["logoFilePath"])
@@ -86,18 +84,19 @@ class RadioBuenaVida:
                     imgSquare = self.image_processor.convert_image(img=imgSquare, convert_to="RGBA")
                 # Save the image as JPEG
                 imgSquare.save(byte_io, format='JPEG')
-                showName = self.rbv_file_naming(file['name'])
+                showName = self.rbv_file_naming(f"{show['show_name']}.jpg")
                 self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName ,path=os.getenv("DROPBOX_RBV_SHOW_IMAGES"))
             except Exception as e:
-                logging.info(f"Error processing file {file['name']}: {e}")
-            logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
+                logging.info(f"Error processing file {show['show_name']}: {e}")
+        self.database_handler.close()
+        logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
         return {"statusCode": 200, "body": "Images processed and uploaded successfully"}
     
     def create_monthly_colors_assets(self):
         monthlyColorFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
         monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile))
         try:
-            for index, row in monthlyColorsDf.iterrows():
+            for _, row in monthlyColorsDf.iterrows():
                 monthName = row['Month']
                 monthNumber = MONTH_NAME_TO_NUMBER.get(monthName.replace(" ",""))
                 hexColor = row['Color']
@@ -152,6 +151,7 @@ class RadioBuenaVida:
     def rbv_file_naming(self, showName):
         now = datetime.now()
         formattedDate = now.strftime("%d.%m")
+        showName = showName.replace('/', '')
         showFileName = f"{formattedDate} {showName}"
         return showFileName
 

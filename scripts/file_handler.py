@@ -26,9 +26,6 @@ class FileHandler:
             # Check if image_data is in bytes format or wrap it as BytesIO
             if isinstance(image_data, bytes):
                 image_data = BytesIO(image_data)
-            elif not isinstance(image_data, BytesIO):
-                logging.error("Invalid image data format: must be bytes or BytesIO.")
-                return None
 
             # Try opening the image
             image = Image.open(image_data)
