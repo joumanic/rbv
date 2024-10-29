@@ -156,5 +156,33 @@ class ImageProcessor:
         # Save the result
         return img
 
+    def replace_colors_in_image(self, img_byte: BytesIO, color_map: dict)->Image:
+        try:
+            # Attempt to open the image
+            with Image.open(img_byte) as img:
+                img = img.convert("RGBA")
+                logging.info("Image successfully opened and converted to RGBA mode.")
+
+                # Get image data and attempt replacements
+                data = img.getdata()
+                new_data = [
+                    color_map.get(pixel[:3], pixel)  # Replace pixel if in color_map, else keep original
+                    for pixel in data
+                ]
+                
+                # Apply modified pixel data
+                img.putdata(new_data)
+                logging.info("Color replacement completed successfully.")
+                
+                # Return a copy of the modified image outside the `with` block
+                return img.copy()
+                
+        except IOError as e:
+            logging.error(f"Failed to open or process image data: {e}")
+            return None
+        except Exception as e:
+            logging.error(f"An unexpected error occurred: {e}")
+            return None
+
 
     
