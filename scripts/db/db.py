@@ -9,7 +9,6 @@ class DatabaseHandler:
     def __init__(self):
         self.connection = None
         self.cursor = None
-        self.connect()
 
     def connect(self):
         """Establish a database connection."""

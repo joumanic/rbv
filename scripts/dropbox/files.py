@@ -4,8 +4,8 @@ import json
 import os
 import tempfile
 from requests.exceptions import RequestException, HTTPError, Timeout, ConnectionError
+from urllib.parse import urlparse, unquote
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,18 @@ class DropboxService:
             logger.error(f"Error occurred during request: {err}")
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
+        return None
+    
+    def batch_delete_files(self, file_paths:list):
+        """Batch delete files"""
+        url = self.base_url + "delete_batch"
+        entries = [{"path": path} for path in file_paths]
+        headers = self._get_headers()
+        data = json.dumps({"entries": entries})
+
+        response = self._send_request(url,headers=headers,data=data)
+        if response:
+            return response.json()
         return None
 
     def get_folder(self, folder_path: str):
@@ -79,6 +91,16 @@ class DropboxService:
 
         response = self._send_request(url, headers=headers, data=data)
         return response  # Return the entire response if needed for further inspection
+
+    def get_filename_from_shareable_link(self, url:str) -> str:
+        """Gets filename from shareable link"""
+        parsed_url = urlparse(url)
+        
+        # Extract the last part of the path (the filename)
+        filename = parsed_url.path.split('/')[-1]
+        
+        # Decode any URL-encoded characters
+        return unquote(filename)
 
     def download_shareable_link(self, link:str):
         try:
