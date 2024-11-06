@@ -2,11 +2,13 @@ import React from 'react';
 
 function Step3({ handleSubmit, prevStep }) {
   return (
-    <div>
-      <h2>Thank You for Your Submission!</h2>
-      <p>You will receive a confirmation email shortly.</p>
-      <button onClick={prevStep}>Back</button>
-      <button onClick={handleSubmit}>Submit</button>
+    <div className="step-form">
+      <h2 className="form-title">Thank You for Your Submission!</h2>
+      <p className="form-description">You will receive a confirmation email shortly.</p>
+      <div className="btn-container">
+        <button className="btn" onClick={prevStep}>Back</button>
+        <button className="btn" onClick={handleSubmit}>Submit</button>
+      </div>
     </div>
   );
 }

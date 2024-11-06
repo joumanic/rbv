@@ -1,5 +1,6 @@
 # Environment files
 .env
+.env.local
 
 # Python bytecode
 *.pyc
@@ -8,12 +9,16 @@ __pycache__/
 # Django database
 db.sqlite3
 
-# Static and media files
+# Static and media and build files
 /static/
 /media/
+/build/
 
 # IDE-specific files
 .vscode/
 .idea/
 
-.env/
+/node_modules
+
+.venv/*
+

@@ -4,8 +4,14 @@ from rest_framework import status
 from .models import RadioShow
 from .serializers import RadioShowSerializer
 from .utils import upload_to_dropbox
+from django.shortcuts import render
+
+
+def index(request):
+    return render(request, 'build/index.html')
 
 class RadioShowCreateView(APIView):
+    
     def post(self, request):
         data = request.data
         form = RadioShowSerializer(data=data)

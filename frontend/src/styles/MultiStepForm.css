@@ -1,0 +1,99 @@
+/* General Form Styling */
+
+body {
+    background-color: #ffefef; /* Pinkish background */
+    font-family: 'Roboto', sans-serif; /* Apply Roboto font */
+    margin: 0;
+    padding: 0;
+}
+
+.step-form {
+    background-color: #ff6900; /* Orange background */
+    color: white; /* White text */
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.form-description {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Styling for Step1 content */
+.step-content {
+    color: white; /* Ensure text color is white */
+}
+
+/* List Styles */
+.step-content ul {
+    list-style-type: disc;
+    padding-left: 20px; /* Indentation for bullet points */
+    margin-bottom: 10px; /* Space after the list */
+}
+
+.step-content li {
+    margin-bottom: 10px; /* Space between bullet points */
+}
+
+/* Label and Input Styles */
+.step-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.step-form input[type="text"],
+.step-form input[type="file"],
+.step-form input[type="checkbox"] {
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+    color: white;
+}
+
+.step-form input[type="checkbox"] {
+    width: auto;
+    height: auto;
+}
+
+.step-form input[type="text"]:focus,
+.step-form input[type="file"]:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Button Styles */
+.btn {
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: white;
+    color: #ff6900;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #ff6900;
+    color: white;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+}
