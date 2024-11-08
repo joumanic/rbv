@@ -5,7 +5,13 @@ import MultiStepForm from './components/MultiStepForm';
  
 function App() {
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_BASE_URL_RENDER}`) 
+    axios.get(
+      `${process.env.REACT_APP_API_BASE_URL_RENDER}`, {
+        headers: {
+          "Access-Control-Allow-Origin": true
+        }
+      }
+    ) 
       .then(response => {
         console.log(response.data);
       })
