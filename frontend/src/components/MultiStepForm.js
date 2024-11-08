@@ -79,7 +79,8 @@ function MultiStepForm() {
 
     axios.post(`${process.env.REACT_APP_API_BASE_URL_RENDER}api/radio-show/`, formDataToSubmit, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        "Access-Control-Allow-Origin": true
       }
     })
     .then(response => {
