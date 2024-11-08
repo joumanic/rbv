@@ -16,6 +16,10 @@ db.sqlite3
 .vscode/
 .idea/
 
+/node_modules
+
+.venv/*
+
 .env/
 /venv
 venv/pyvenv.cfg
