@@ -1,4 +1,3 @@
-
 from file_handler import FileHandler
 from image_processor import ImageProcessor
 from scripts.dropbox.files import DropboxService
@@ -13,8 +12,6 @@ import pandas as pd
 POST_SQUARE_SIZE= 1080
 FONT_SHOW_SIZE_RATIO = 0.04
 FONT_GENRE_SIZE_RATIO = 0.035
-GENRE_TEXT_TEST = "dd"
-SHOW_TEXT = "kk"
 # Dictionary to map month names to month numbers
 MONTH_NAME_TO_NUMBER = {
     "January": 1,
