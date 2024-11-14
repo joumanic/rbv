@@ -23,7 +23,6 @@ app.use(express.json());
 // Proxy requests to backend API
 app.all('/api/*', async (req, res) => {
   const apiUrl = `https://rbv.onrender.com${req.originalUrl.replace('/api', '')}`;
-
   try {
     const response = await axios({
       method: req.method,
