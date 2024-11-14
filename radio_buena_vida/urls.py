@@ -16,7 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from  myapp import views
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/radio-show/', views.RadioShowCreateView.as_view(), name='radio-show-create'),
+
 ]

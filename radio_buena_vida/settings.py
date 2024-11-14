@@ -29,6 +29,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['rbv.onrender.com', '127.0.0.1']
 
+# In settings.py
+CSRF_TRUSTED_ORIGINS = [
+    'https://rbv.onrender.com',
+]
+
 
 # Application definition
 
