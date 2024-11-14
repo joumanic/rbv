@@ -1,8 +1,7 @@
 import './App.css';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import MultiStepForm from './components/MultiStepForm';
- 
+import MultiStepForm from './components/MultiStepForm'; 
 
 function App() {
   const makeAPICall = async () => {

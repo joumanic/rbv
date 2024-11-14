@@ -13,11 +13,10 @@ def index(request):
 class RadioShowCreateView(APIView):
     
     def post(self, request):
-        data = request.data
-        form = RadioShowSerializer(data=data)
-
-        if form.is_valid():
-            show = form.save(commit=False)
+         serializer = RadioShowSerializer(data=request.data)
+         
+         if serializer.is_valid():
+            show = serializer.save()  
 
             # Check if there's an image file being uploaded
             if 'show_image_url' in request.FILES:
@@ -34,4 +33,4 @@ class RadioShowCreateView(APIView):
             return Response({"message": "Radio show created successfully!"}, status=status.HTTP_201_CREATED)
         
         # If form is not valid, return the validation errors
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+         return Response(show.errors, status=status.HTTP_400_BAD_REQUEST)
