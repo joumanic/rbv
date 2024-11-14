@@ -18,7 +18,7 @@ db.sqlite3
 .vscode/
 .idea/
 
-/node_modules
+node_modules/
 
-.venv/*
+venv/
 
