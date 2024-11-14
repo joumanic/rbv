@@ -90,10 +90,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'rbv',
-        'USER': 'joumana',
-        'PASSWORD': 'radio',
-        'HOST': 'localhost',
-        'PORT': '5433',
+        'USER': 'rbv_user',
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': 'dpg-csgjj0pu0jms73b75mqg-a.frankfurt-postgres.render.com',
+        'PORT': '5432',
     }
 }
 
