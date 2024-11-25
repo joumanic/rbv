@@ -72,7 +72,7 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
             <label>Social URLs:
                 <input 
                     type="text" 
-                    value={formData.socialUrls} 
+                    value={formData.socials} 
                     onChange={handleFormDataChange('socialUrls')} 
                 />
             </label>

@@ -5,7 +5,7 @@ const PORT = 3000;
 
 // Set CORS headers and handle OPTIONS preflight requests
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin','https://rbv.vercel.app/, http://localhost:3000/');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Proxy requests to backend API
 app.all('/api/*', async (req, res) => {
-  const apiUrl = `https://rbv.onrender.com${req.originalUrl.replace('/api', '')}`;
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL_RENDER}${req.originalUrl.replace('/api', '')}`;
   try {
     const response = await axios({
       method: req.method,
