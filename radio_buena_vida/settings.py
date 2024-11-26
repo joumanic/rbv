@@ -29,6 +29,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['rbv.onrender.com', '127.0.0.1']
 
+# In settings.py
+CSRF_TRUSTED_ORIGINS = ['https://rbv.onrender.com', 'http://127.0.0.1']
+
 
 # Application definition
 
@@ -56,6 +59,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "https://rbv.vercel.app",
+    "http://localhost:3000"
 ]
 ROOT_URLCONF = 'radio_buena_vida.urls'
 
@@ -85,10 +89,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'rbv',
-        'USER': 'joumana',
-        'PASSWORD': 'radio',
-        'HOST': 'localhost',
-        'PORT': '5433',
+        'USER': 'rbv_user',
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': 'dpg-csgjj0pu0jms73b75mqg-a.frankfurt-postgres.render.com',
+        'PORT': '5432',
     }
 }
 

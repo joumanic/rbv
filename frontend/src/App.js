@@ -1,31 +1,26 @@
 import './App.css';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import MultiStepForm from './components/MultiStepForm';
- 
+import MultiStepForm from './components/MultiStepForm'; 
+
 function App() {
+  const makeAPICall = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/cors', { mode: 'cors' });
+      const data = await response.json();
+      console.log({ data })
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
   useEffect(() => {
-    axios.get(
-      `${process.env.REACT_APP_API_BASE_URL_RENDER}`, {
-        headers: {
-          "Access-Control-Allow-Origin": true
-        }
-      }
-    ) 
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.log('Error fetching data:', error);
-      });
-  }, []);
-
-
+    makeAPICall();
+  }, [])
   return (
     <div className="App">
       <MultiStepForm/>
     </div>
   );
 }
-
 export default App;
