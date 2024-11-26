@@ -125,11 +125,11 @@ class RadioBuenaVida:
 
                 brandTemplateFolder = self.dropbox_service.get_folder(os.getenv('DROPBOX_RBV_BRAND_TEMPLATES_FOLDER'))
 
-                brandTemplates = [file for file in brandTemplateFolder['entries']]
+                brandTemplates = [file for file in brandTemplateFolder.entries]
                 try:
                     for file in brandTemplates:
-                        fileName = f"{monthNumber}_{month}_{file['name']}"
-                        fileDownlaodResponse = self.dropbox_service.download_file(file_path=file['path_lower'])
+                        fileName = f"{monthNumber}_{month}_{file.name}"
+                        fileDownlaodResponse = self.dropbox_service.download_file(file_path=file.path_lower)
                         logo = self.file_handler.open_image(fileDownlaodResponse)
                         logo = self.image_processor.convert_image(img=logo, convert_to="RGBA")
                         fileByte = BytesIO(fileDownlaodResponse)
@@ -154,8 +154,8 @@ class RadioBuenaVida:
     def rbv_assets(self):
         currentMonthName = datetime.now().strftime("%B")
         coloredAssetsFolder = self.dropbox_service.get_folder(folder_path=os.getenv('DROPBOX_RBV_BRAND_COLORED_ASSETS_FOLDER'))
-        rbvLogoFile = [file for file in coloredAssetsFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'logo' in file['name'].lower()][0]
-        rbvWebsiteLogoFile = [file for file in coloredAssetsFolder['entries'] if currentMonthName.lower() in file['name'].lower() and 'website' in file['name'].lower()][0]
+        rbvLogoFile = [file for file in coloredAssetsFolder.entries if currentMonthName.lower() in file.name.lower() and 'logo' in file.name.lower()][0]
+        rbvWebsiteLogoFile = [file for file in coloredAssetsFolder.entries if currentMonthName.lower() in file.name.lower() and 'website' in file.name.lower()][0]
         monthlyColorFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
         monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile))
 
@@ -163,8 +163,8 @@ class RadioBuenaVida:
         hexColor = monthlyColorsDf["Color"].loc[monthlyColorsDf["Month"]==currentMonthName].values[0]
         rbvBrand = {
             "month": currentMonthName,
-            "logoFilePath":rbvLogoFile['path_lower'],
-            "websiteLogoFilePath": rbvWebsiteLogoFile['path_lower'],
+            "logoFilePath":rbvLogoFile.path_lower,
+            "websiteLogoFilePath": rbvWebsiteLogoFile.path_lower,
             "hexColor": hexColor,
             "rgbColor": hex_to_rgb(hexColor)
         }

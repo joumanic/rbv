@@ -5,18 +5,18 @@ import os
 import tempfile
 from requests.exceptions import RequestException, HTTPError, Timeout, ConnectionError
 from urllib.parse import urlparse, unquote
+import dropbox
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DropboxService:
-    def __init__(self, api_token=None):
-        self.api_token = os.getenv("DROPBOX_ACCESS_TOKEN")
-        self.base_url = "https://api.dropboxapi.com/2/files/"
-        self.content_url = "https://content.dropboxapi.com/2/files/"
+    def __init__(self):
+        self._sdk_token = os.getenv("DROPBOX_ACCESS_TOKEN")
+        self._dbx = dropbox.Dropbox(self._sdk_token)
 
         if not self.api_token:
-            logger.warning("Dropbox API token is missing. Set it as an environment variable or pass it explicitly.")
+            logger.warning("Dropbox SDK access token is missing. Set it as an environment variable or pass it explicitly.")
 
     def _get_headers(self, content_type="application/json", **kwargs):
         """Helper function to generate request headers."""
@@ -55,30 +55,19 @@ class DropboxService:
 
     def get_folder(self, folder_path: str):
         """Lists contents of a Dropbox folder."""
-        url = self.base_url + "list_folder"
-        headers = self._get_headers()
-        data = json.dumps({"path": folder_path})
-        
-        response = self._send_request(url, headers=headers, data=data)
-        if response:
-            return response.json()
-        return None
+        folderFiles = self._dbx.files_list_folder(folder_path=folder_path)
+        return folderFiles
     
     def get_images(self, folder_path:str):
-        folder = self.get_folder(folder_path)
-        if folder and "entries" in folder:
-            return [file for file in folder["entries"] if file["name"].lower().endswith(("png", "jpg", "jpeg"))]
+        listFolder = self.get_folder(folder_path)
+        if listFolder.entries:
+            return [file for file in listFolder.entries if file.name.lower().endswith(("png", "jpg", "jpeg"))]
         return []
     
     def download_file(self, file_path: str):
         """Downloads a file from Dropbox."""
-        url = self.content_url + "download"
-        headers = self._get_headers(content_type="application/octet-stream", **{
-            "Dropbox-API-Arg": json.dumps({"path": file_path})
-        })
-
-        response = self._send_request(url, headers=headers)
-        if response:
+        _,response = self._dbx.files_download(file_path)
+        if response == 200:
             return response.content  # Return raw file data for flexibility
         return None
 
