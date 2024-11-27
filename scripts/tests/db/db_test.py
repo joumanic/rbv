@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
-from scripts.db import DatabaseHandler
+from scripts.db.db import DatabaseHandler
 
 class TestDatabaseHandler(unittest.TestCase):
 
@@ -9,7 +9,7 @@ class TestDatabaseHandler(unittest.TestCase):
         # Initialize the DatabaseHandler instance for testing
         self.db_handler = DatabaseHandler()
 
-    @patch("root.scripts.db_handler.psycopg2.connect")
+    @patch("scripts.db.db.psycopg2.connect")
     def test_connect_success(self, mock_connect):
         mock_connection = MagicMock()
         mock_cursor = MagicMock()
@@ -23,13 +23,13 @@ class TestDatabaseHandler(unittest.TestCase):
         mock_connect.assert_called_once()
         mock_connection.cursor.assert_called_once()
     
-    @patch("root.scripts.db_handler.psycopg2.connect", side_effect=Exception("Connection error"))
+    @patch("scripts.db.db.psycopg2.connect", side_effect=Exception("Connection error"))
     def test_connect_failure(self, mock_connect):
         with self.assertLogs(level='ERROR') as log:
             self.db_handler.connect()
             self.assertIn("Error connecting to the database: Connection error", log.output[0])
 
-    @patch("root.scripts.db_handler.DatabaseHandler.connect")
+    @patch("scripts.db.db.DatabaseHandler.connect")
     def test_execute_query_success(self, mock_connect):
         mock_cursor = MagicMock()
         self.db_handler.cursor = mock_cursor
@@ -40,7 +40,7 @@ class TestDatabaseHandler(unittest.TestCase):
         mock_cursor.execute.assert_called_once_with("SELECT * FROM test_table", None)
         mock_cursor.fetchall.assert_called_once()
 
-    @patch("root.scripts.db_handler.DatabaseHandler.connect")
+    @patch("scripts.db.db.DatabaseHandler.connect")
     def test_execute_query_failure(self, mock_connect):
         mock_cursor = MagicMock()
         self.db_handler.cursor = mock_cursor
@@ -51,7 +51,7 @@ class TestDatabaseHandler(unittest.TestCase):
             self.assertIsNone(result)
             self.assertIn("Error executing query: Query error", log.output[0])
 
-    @patch("root.scripts.db_handler.DatabaseHandler.connect")
+    @patch("scripts.db.db.DatabaseHandler.connect")
     def test_get_current_radio_shows_success(self, mock_connect):
         # Mock cursor and sample data
         mock_cursor = MagicMock()
@@ -74,7 +74,7 @@ class TestDatabaseHandler(unittest.TestCase):
         )
         pd.testing.assert_frame_equal(result, expected_df)
 
-    @patch("root.scripts.db_handler.DatabaseHandler.connect")
+    @patch("scripts.db.db.DatabaseHandler.connect")
     def test_get_current_radio_shows_failure(self, mock_connect):
         # Mock a failing scenario where cursor throws an exception
         mock_cursor = MagicMock()
@@ -86,7 +86,7 @@ class TestDatabaseHandler(unittest.TestCase):
             self.assertIsNone(result)
             self.assertIn("Error executing get_current_radio_show query: Query error", log.output[0])
 
-    @patch("root.scripts.db_handler.DatabaseHandler.connect")
+    @patch("scripts.db.db.DatabaseHandler.connect")
     def test_close_connection(self, mock_connect):
         mock_connection = MagicMock()
         mock_cursor = MagicMock()
