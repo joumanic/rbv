@@ -1,6 +1,6 @@
 from file_handler import FileHandler
 from image_processor import ImageProcessor
-from scripts.dropbox.files import DropboxService
+from scripts.dbx.files import DropboxService
 from scripts.db.db import DatabaseHandler
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -96,8 +96,8 @@ class RadioBuenaVida:
         logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
     
     def create_monthly_colors_assets(self):
-        monthlyColorFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
-        monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorFile))
+        monthlyColorByteFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'monthly_colors.xlsx'))
+        monthlyColorsDf = pd.read_excel(BytesIO(monthlyColorByteFile))
         
         current_date = datetime.now()
         current_month = current_date.strftime("%B")  # Get current month in abbreviated form
