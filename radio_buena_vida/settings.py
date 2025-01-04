@@ -139,3 +139,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DROPBOX_ACCESS_TOKEN = config('DROPBOX_ACCESS_TOKEN')
+
+DJANGO_SECRET_KEY = config('DJANGO_SECRET_KEY')
