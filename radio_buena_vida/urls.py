@@ -22,6 +22,6 @@ from  myapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/radio-show/', views.RadioShowCreateView.as_view(), name='radio-show-create'),
+    path('/api/radio-show/', views.RadioShowCreateView.as_view(), name='radio-show-create'),
 
 ]
