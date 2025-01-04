@@ -77,7 +77,7 @@ function MultiStepForm() {
       formDataToSubmit.append(`guest${index + 1}`, guest); // Append each guest
     });
 
-    axios.post(`${process.env.REACT_APP_API_BASE_URL_RENDER}/api/radio-show/`, formDataToSubmit)
+    axios.post(`${process.env.REACT_APP_API_BASE_URL_RENDER}//api/radio-show/`, formDataToSubmit)
     .then(response => {
       console.log("Success:", response);
       // Handle success (e.g., navigate to a success page)
