@@ -8,6 +8,7 @@ from dropbox.exceptions import ApiError, AuthError
 from dropbox.oauth import OAuth2FlowNoRedirectResult
 from dropbox.files import DeleteArg as DropboxDeleteArg
 from dropbox.files import UploadError, WriteError, WriteConflictError, UploadWriteFailed
+from decouple import config
 
 
 logging.basicConfig(level=logging.INFO)
@@ -15,14 +16,16 @@ logger = logging.getLogger(__name__)
 
 class DropboxService:
     def __init__(self):
-        self._sdk_token = os.getenv("DROPBOX_ACCESS_TOKEN")
+        self._sdk_token = config("DROPBOX_ACCESS_TOKEN")
         self._initialize_client()
         if not self._sdk_token:
             logging.warning("Dropbox SDK access token is missing. Set it as an environment variable.")
 
     def _initialize_client(self):
         """Initialize Dropbox client."""
+        #TODO: make better logic to refresh token only when necessary
         try:
+            self._sdk_token = self._refresh_token()
             self._dbx = dropbox.Dropbox(self._sdk_token)
         except AuthError:
             logging.warning("Initial authentication failed. Attempting to refresh token.")
@@ -30,30 +33,25 @@ class DropboxService:
             self._dbx = dropbox.Dropbox(self._sdk_token)
 
     def _refresh_token(self):
-        """Refresh the access token using the refresh token."""
-        logging.info("Refreshing Dropbox access token...")
-        try:
-            # Token refresh process (simplified for clarity)
-            token = OAuth2FlowNoRedirectResult(
-                access_token=self._sdk_token,
-                account_id=os.getenv("DROPBOX_ACCOUNT_ID"),
-                refresh_token=os.getenv("DROPBOX_REFRESH_TOKEN"),
-                user_id=os.getenv("DROPBOX_USER_ID"),
-                scope=[
-                    "files.metadata.write", "files.metadata.read",
-                    "files.content.write", "files.content.read",
-                    "account.info.read"
-                ],
-                expiration=1,
-            )
-            new_token = token.access_token
-            os.environ["DROPBOX_ACCESS_TOKEN"] = new_token  # Update env for future use
-            logging.info("Access token refreshed successfully.")
-            return new_token
-        except Exception as e:
-            logging.error(f"Failed to refresh access token: {e}")
-            raise
-
+        refresh_token = os.getenv('DROPBOX_REFRESH_TOKEN')
+        app_key = os.getenv('DROPBOX_APP_KEY')
+        app_secret = os.getenv('DROPBOX_APP_SECRET')
+        
+        url = "https://api.dropboxapi.com/oauth2/token"
+        payload = {
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
+            'client_id': app_key,
+            'client_secret': app_secret
+        }
+        response = requests.post(url, data=payload)
+        if response.status_code == 200:
+            new_access_token = response.json()['access_token']
+            # Save this token securely (e.g., in an environment variable or secure store)
+            os.environ['DROPBOX_ACCESS_TOKEN'] = new_access_token
+            return new_access_token
+        else:
+            raise Exception("Failed to refresh access token: {}".format(response.json()))
     def _retry_on_auth_error(self, func, *args, **kwargs):
         """Retry a Dropbox SDK operation if AuthError occurs."""
         try:
