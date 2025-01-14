@@ -26,12 +26,10 @@ venv/
 /venv
 venv/pyvenv.cfg
 typescript
-venv/pyvenv.cfg
 scripts/data/rbv_show_images/.DS_Store
 scripts/data/show_images/.DS_Store
 scripts/data/.DS_Store
 scripts/data/rbv_brand/.DS_Store
 scripts/data/rbv_monthly_colors/.DS_Store
 .DS_Store
-/venv
 playground.ipynb

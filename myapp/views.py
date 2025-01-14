@@ -33,4 +33,4 @@ class RadioShowCreateView(APIView):
             return Response({"message": "Radio show created successfully!"}, status=status.HTTP_201_CREATED)
         
         # If form is not valid, return the validation errors
-         return Response(show.errors, status=status.HTTP_400_BAD_REQUEST)
+         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
