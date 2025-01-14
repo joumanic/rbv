@@ -51,7 +51,7 @@ class RadioBuenaVida:
                     (imgSquare.height - img.height) // 2
                     ) # Calculate the position to paste the masked image (centre)
                 imgSquare.paste(img, maskedImagePosition, img)
-                genres = " | ".join([show[f"genre_{i}"] for i in range(1, 4) if show.get(f"genre_{i}")])
+                genres = " | ".join([show[f"genre{i}"] for i in range(1, 4) if show.get(f"genre{i}")])
                 font = self.file_handler.get_font()
                 self.image_processor.add_text(
                     img=imgSquare,
