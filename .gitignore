@@ -26,7 +26,6 @@ venv/
 /venv
 venv/pyvenv.cfg
 typescript
-venv/pyvenv.cfg
 scripts/data/rbv_show_images/.DS_Store
 scripts/data/show_images/.DS_Store
 scripts/data/.DS_Store
