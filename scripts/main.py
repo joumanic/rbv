@@ -11,12 +11,13 @@ if __name__ == "__main__":
     handler.handle_event("create monthly color assets")
     handler.handle_event("create social media assets")
     
-   # scheduler.add_job(lambda:handler.handle_event("create social media assets"), 'cron', day_of_week='sat', hour=12, minute=0)
+    #scheduler.add_job(lambda:handler.handle_event("create social media assets"), 'cron', day_of_week='sat', hour=12, minute=0)
 
     #scheduler.add_job(lambda:handler.handle_event("create monthly color assets"), 'cron', day=1, hour=12, minute=0)
     
     try:
-        scheduler.start()
+        #scheduler.start()
+        pass
     except (KeyboardInterrupt, SystemExit):
         pass
         
