@@ -59,8 +59,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "https://rbv.vercel.app",
-    "http://localhost:3000"
+    config('REACT_APP_API_BASE_URL'),
 ]
 ROOT_URLCONF = 'radio_buena_vida.urls'
 

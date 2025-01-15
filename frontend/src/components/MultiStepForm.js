@@ -16,6 +16,7 @@ function MultiStepForm() {
       genre3: ''
     },
     socials: '',
+    showDate: '',
     showImage: null,  // File upload
     guests: [],
     isHostingGuest: false // Ensure this is initialized
@@ -70,6 +71,7 @@ function MultiStepForm() {
     formDataToSubmit.append('genre2', formData.genres.genre2);
     formDataToSubmit.append('genre3', formData.genres.genre3);
     formDataToSubmit.append('socials', formData.socials);
+    formDataToSubmit.append('show_date', formData.showDate);
     formDataToSubmit.append('show_image_url', formData.showImage);
 
     // If you are hosting guests, you may want to handle that too

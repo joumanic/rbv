@@ -76,6 +76,13 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
                     onChange={handleFormDataChange('socialUrls')} 
                 />
             </label>
+            <label>Show Date:
+                <input 
+                    type="text" 
+                    value={formData.showDate} 
+                    onChange={handleFormDataChange('showDate')} 
+                />
+            </label>
 
             <label>Show Image:
                 <input 

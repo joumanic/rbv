@@ -10,6 +10,7 @@ class RadioShow(models.Model):
     genre2 = models.CharField(max_length=100, default='')
     genre3 = models.CharField(max_length=100, default='')
     socials = models.TextField(blank=True, null=True)
+    show_date = models.DateField(blank=True, null=True)
     show_image = models.URLField(max_length=200, blank=True, null=True) 
 
     def set_socials(self, socials_list):
