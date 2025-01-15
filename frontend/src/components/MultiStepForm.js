@@ -4,6 +4,8 @@ import Step1 from './Step1';  // Import your step components
 import Step2 from './Step2';
 import Step3 from './Step3';
 import '../styles/MultiStepForm.css';
+import { format } from 'date-fns';
+
 
 function MultiStepForm() {
   const [step, setStep] = useState(1);
@@ -13,40 +15,37 @@ function MultiStepForm() {
     genres: {
       genre1: '',
       genre2: '',
-      genre3: ''
+      genre3: '',
     },
     socials: '',
-    showDate: '',
-    showImage: null,  // File upload
+    showDate: null, // Initialize as null or a default date
+    showImage: null,
     guests: [],
-    isHostingGuest: false // Ensure this is initialized
+    isHostingGuest: false,
   });
-
+  
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
   
   const handleFormDataChange = (name) => (event) => {
-    // Check if the event is from a checkbox
-    const value = name === 'isHostingGuest' ? event.target.checked : event.target.value; // Use checked for booleans
-    
+    const value = name === 'showDate' ? format(event, 'yyyy-MM-dd') : event.target.value;
     if (name.includes('.')) {
       const [mainField, subField] = name.split('.');
       setFormData((prevFormData) => ({
         ...prevFormData,
         [mainField]: {
           ...prevFormData[mainField],
-          [subField]: value
-        }
+          [subField]: value,
+        },
       }));
     } else {
-      // For top-level fields
       setFormData((prevFormData) => ({
         ...prevFormData,
-        [name]: value
+        [name]: value,
       }));
     }
   };
-
+  
   const handleGuestChange = (index) => (event) => {
     const newGuests = [...formData.guests];
     newGuests[index] = event.target.value;
@@ -82,6 +81,7 @@ function MultiStepForm() {
     axios.post(`${process.env.REACT_APP_API_BASE_URL_RENDER}/api/radio-show/`, formDataToSubmit)
     .then(response => {
       console.log("Success:", response);
+      nextStep();
       // Handle success (e.g., navigate to a success page)
     })
     .catch(error => {
@@ -100,12 +100,12 @@ function MultiStepForm() {
           handleFormDataChange={handleFormDataChange}
           handleGuestChange={handleGuestChange}
           addGuest={addGuest}
-          nextStep={nextStep}
+          nextStep={handleSubmit}
           prevStep={prevStep}
         />
       );
     case 3:
-      return <Step3 handleSubmit={handleSubmit} formData={formData} prevStep={prevStep} />;
+      return <Step3 />;
     default:
       return null;
   }
