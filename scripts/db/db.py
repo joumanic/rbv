@@ -39,7 +39,7 @@ class DatabaseHandler:
         try:
             self.cursor.execute(
             '''SELECT *
-            FROM public.radio_show
+            FROM public.myapp_radioshow
             WHERE created_at::date < (
             show_date - (EXTRACT(DOW FROM show_date) + 1 + 1) % 7 * INTERVAL '1 day')'''
             )
