@@ -3,6 +3,7 @@ from image_processor import ImageProcessor
 from scripts.dbx.files import DropboxService
 from scripts.db.db import DatabaseHandler
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from utility import hex_to_rgb
 import logging
@@ -42,6 +43,8 @@ class RadioBuenaVida:
         delete_files = []
         for _, show in radio_shows.iterrows():
             try:
+                if rbvBrand['month'] != show["show_date"].strftime("%B"):
+                    rbvBrand = self.rbv_assets(show["show_date"])
                 img = self.file_handler.open_image(image_data=(self.dropbox_service.download_shareable_link(show["show_image"])))
                 imgBlurZoom = self.image_processor.zoom(self.image_processor.blur((img)))
                 imgSquare = self.image_processor.instagram_square_canvas(img=imgBlurZoom)
@@ -83,7 +86,7 @@ class RadioBuenaVida:
                     imgSquare = self.image_processor.convert_image(img=imgSquare, convert_to="RGBA")
                 # Save the image as JPEG
                 imgSquare.save(byte_io, format='JPEG')
-                showName = self.rbv_file_naming(f"{show['show_name']}.jpg")
+                showName = self.rbv_file_naming(f"{show['show_name']}.jpg", show["show_date"])
                 self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName ,path=os.getenv("DROPBOX_RBV_SHOW_IMAGES"))
 
                 file_name = self.dropbox_service.get_filename_from_shareable_link(show["show_image"])
@@ -101,19 +104,16 @@ class RadioBuenaVida:
         
         current_date = datetime.now()
         current_month = current_date.strftime("%B")  # Get current month in abbreviated form
-        next_week_start = current_date + timedelta(days=7)
-        next_month = next_week_start.strftime("%B")
+        next_month_start = current_date + relativedelta(months=1)
+        next_month_start = next_month_start.strftime("%B")
 
         # Get assets for the current month
         current_month_assets = monthlyColorsDf[monthlyColorsDf["Month"] == current_month]
 
         # Get assets for the next month if next week crosses into it
-        next_month_assets = monthlyColorsDf[monthlyColorsDf["Month"] == next_month]
-        if current_month == next_month:
-            currentMonthColor = current_month_assets
-        else:
-            # Combine both DataFrames if needed
-            currentMonthColor = pd.concat([current_month_assets, next_month_assets]).reset_index(drop=True)
+        next_month_assets = monthlyColorsDf[monthlyColorsDf["Month"] == next_month_start]
+        # Combine both DataFrames if needed
+        currentMonthColor = pd.concat([current_month_assets, next_month_assets]).reset_index(drop=True)
 
         # Display the resulting DataFrame
         try:
@@ -151,8 +151,8 @@ class RadioBuenaVida:
         except Exception as e:
                 logging.info(f"Error gettting monthly color template assets: {e}")
 
-    def rbv_assets(self):
-        currentMonthName = datetime.now().strftime("%B")
+    def rbv_assets(self, showDate=datetime.now()):
+        currentMonthName = showDate.strftime("%B")
         coloredAssetsFolder = self.dropbox_service.get_folder(folder_path=os.getenv('DROPBOX_RBV_BRAND_COLORED_ASSETS_FOLDER'))
         rbvLogoFile = [file for file in coloredAssetsFolder.entries if currentMonthName.lower() in file.name.lower() and 'logo' in file.name.lower()][0]
         rbvWebsiteLogoFile = [file for file in coloredAssetsFolder.entries if currentMonthName.lower() in file.name.lower() and 'website' in file.name.lower()][0]
@@ -170,9 +170,8 @@ class RadioBuenaVida:
         }
         return rbvBrand
 
-    def rbv_file_naming(self, showName):
-        now = datetime.now()
-        formattedDate = now.strftime("%d.%m")
+    def rbv_file_naming(self, showName, showDate):
+        formattedDate = showDate.strftime("%d.%m.%y")
         showName = showName.replace('/', '')
         showFileName = f"{formattedDate} {showName}"
         return showFileName
