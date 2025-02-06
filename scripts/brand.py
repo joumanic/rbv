@@ -1,8 +1,8 @@
 from file_handler import FileHandler
-from image_processor import ImageProcessor
 from scripts.dbx.files import DropboxService
 from scripts.db.db import DatabaseHandler
-from datetime import datetime, timedelta
+from datetime import datetime
+import image_processor
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from utility import hex_to_rgb
@@ -10,9 +10,6 @@ import logging
 import os
 import pandas as pd
 
-POST_SQUARE_SIZE= 1080
-FONT_SHOW_SIZE_RATIO = 0.04
-FONT_GENRE_SIZE_RATIO = 0.035
 # Dictionary to map month names to month numbers
 MONTH_NAME_TO_NUMBER = {
     "January": 1,
@@ -33,10 +30,9 @@ class RadioBuenaVida:
     def __init__(self):
         self.dropbox_service = DropboxService()
         self.file_handler = FileHandler(self.dropbox_service)
-        self.image_processor = ImageProcessor()
         self.database_handler = DatabaseHandler()
 
-    def create_social_media_assets(self):
+    def create_show_social_media_assets(self):
         self.database_handler.connect()
         radio_shows = self.database_handler.get_current_radio_shows()
         rbvBrand = self.rbv_assets()
@@ -45,57 +41,85 @@ class RadioBuenaVida:
             try:
                 if rbvBrand['month'] != show["show_date"].strftime("%B"):
                     rbvBrand = self.rbv_assets(show["show_date"])
+
                 img = self.file_handler.open_image(image_data=(self.dropbox_service.download_shareable_link(show["show_image"])))
-                imgBlurZoom = self.image_processor.zoom(self.image_processor.blur((img)))
-                imgSquare = self.image_processor.instagram_square_canvas(img=imgBlurZoom)
-                img = self.image_processor.circle_mask(img=img, borderColour=rbvBrand['rgbColor'], borderthicknessRatio=0.04)
+
+                imgBlurZoom = image_processor.zoom(image_processor.blur((img)))
+
+                imgSquare = image_processor.square_image(img=imgBlurZoom)
+
+                img = image_processor.circle_mask(img=img, borderColour=rbvBrand['rgbColor'], borderthicknessRatio=0.04)
+
                 maskedImagePosition  = (
                     (imgSquare.width - img.width) // 2,
                     (imgSquare.height - img.height) // 2
                     ) # Calculate the position to paste the masked image (centre)
+                
                 imgSquare.paste(img, maskedImagePosition, img)
+
+                logoFileResponse = self.dropbox_service.download_file(file_path=rbvBrand["logoFilePath"])
+
+                rbvLogo = self.file_handler.open_image(image_data= logoFileResponse)
+
+                rbvLogo = image_processor.convert_image(img=rbvLogo, convert_to="RGBA")
+
+                imgSquare = image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.05,0.075))
+
+                websiteLogoResponse = self.dropbox_service.download_file(file_path=rbvBrand["websiteLogoFilePath"])
+
+                rbvWebsiteLogo = self.file_handler.open_image(image_data=websiteLogoResponse)
+
+                rbvWebsiteLogo = image_processor.convert_image(img=rbvWebsiteLogo,convert_to="RGBA")
+
+                imgSquare = image_processor.overlay_image(imgSquare, rbvWebsiteLogo, 0.25, offsetPercentage=(0.05,0.025))
+
+                rbvImg = image_processor.resize_to_square_canvas(img=imgSquare)
+
                 genres = " | ".join([show[f"genre{i}"] for i in range(1, 4) if show.get(f"genre{i}")])
-                font = self.file_handler.get_font()
-                self.image_processor.add_text(
-                    img=imgSquare,
+
+                font = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'din2014_demi.otf'))
+                font = BytesIO(font) # Convert to BytesIO object to be used by PIL
+                image_processor.add_text(
+                    img=rbvImg,
                     text=show["show_name"],
                     font = font,
-                    font_ratio=FONT_SHOW_SIZE_RATIO,
                     rectangle_color=rbvBrand["rgbColor"],
                     is_genre=False)
-                font = self.file_handler.get_font()
-                self.image_processor.add_text(
-                    img=imgSquare, 
+                
+                font = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'din2014_demi.otf'))
+                font = BytesIO(font) # Convert to BytesIO object to be used by PIL
+                image_processor.add_text(
+                    img=rbvImg, 
                     font = font,
-                    font_ratio=FONT_GENRE_SIZE_RATIO,
                     text=genres,
                     rectangle_color=rbvBrand["rgbColor"],
                     is_genre=True)
-                logoFileResponse = self.dropbox_service.download_file(file_path=rbvBrand["logoFilePath"])
-                rbvLogo = self.file_handler.open_image(image_data= logoFileResponse)
-                rbvLogo = self.image_processor.convert_image(img=rbvLogo, convert_to="RGBA")
-                imgSquare = self.image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.05,0.075))
-                websiteLogoResponse = self.dropbox_service.download_file(file_path=rbvBrand["websiteLogoFilePath"])
-                rbvWebsiteLogo = self.file_handler.open_image(image_data=websiteLogoResponse)
-                rbvWebsiteLogo = self.image_processor.convert_image(img=rbvWebsiteLogo,convert_to="RGBA")
-                imgSquare = self.image_processor.overlay_image(imgSquare, rbvWebsiteLogo, 0.25, offsetPercentage=(0.05,0.025))
+                
                 byte_io = BytesIO()
                 # Check if the image is in RGBA mode
-                if imgSquare.mode == 'RGBA':
+                if rbvImg.mode == 'RGBA':
                     # Convert to RGB (removing alpha channel)
-                    imgSquare = self.image_processor.convert_image(img=imgSquare, convert_to="RGBA")
+                    rbvImg = image_processor.convert_image(img=rbvImg, convert_to="RGBA")
+                
                 # Save the image as JPEG
-                imgSquare.save(byte_io, format='JPEG')
-                showName = self.rbv_file_naming(f"{show['show_name']}.jpg", show["show_date"])
-                self.file_handler.upload_image(img_data=byte_io.getvalue(), filename=showName ,path=os.getenv("DROPBOX_RBV_SHOW_IMAGES"))
+                rbvImg.save(byte_io, format='JPEG')
 
+                showName = self.rbv_file_naming(f"{show['show_name']}.jpg", show["show_date"])
+
+                # Upload the image to Dropbox
+                upload_path = os.path.join(os.getenv("DROPBOX_RBV_SHOW_IMAGES"), showName)
+                self.dropbox_service.upload_file(path=upload_path, data=byte_io.getvalue())
+
+                # Delete files after processing
                 file_name = self.dropbox_service.get_filename_from_shareable_link(show["show_image"])
                 file_path = os.getenv("DROPBOX_SHOW_IMAGES")
                 delete_files.append(os.path.join(file_path, file_name))
+
             except Exception as e:
-                logging.info(f"Error processing file {show['show_name']}: {e}")
+                logging.info("Error processing file %s: %s",show['show_name'],e)
+                
         self.database_handler.close()
-        self.dropbox_service.batch_delete_files(file_paths=delete_files)
+        #self.dropbox_service.batch_delete_files(file_paths=delete_files)
         logging.info({"statusCode": 200, "body": "Images processed and uploaded successfully"})
     
     def create_monthly_colors_assets(self):
@@ -131,16 +155,16 @@ class RadioBuenaVida:
                         fileName = f"{monthNumber}_{month}_{file.name}"
                         fileDownlaodResponse = self.dropbox_service.download_file(file_path=file.path_lower)
                         logo = self.file_handler.open_image(fileDownlaodResponse)
-                        logo = self.image_processor.convert_image(img=logo, convert_to="RGBA")
+                        logo = image_processor.convert_image(img=logo, convert_to="RGBA")
                         fileByte = BytesIO(fileDownlaodResponse)
                         color_replacement = {
                             (255, 255, 255): monthlyColor
                         }
-                        logo = self.image_processor.replace_colors_in_image(img_byte=fileByte, color_map=color_replacement)
+                        logo = image_processor.replace_colors_in_image(img_byte=fileByte, color_map=color_replacement)
                         byte_io = BytesIO()
                         if logo.mode == 'CMYK':
                             # Convert to RGB (removing alpha channel)
-                            logo = self.image_processor.convert_image(img=logo, convert_to="RGBA")
+                            logo = image_processor.convert_image(img=logo, convert_to="RGBA")
                             logo.save(byte_io, format='JPEG')
                         else:
                             logo.save(byte_io, "PNG")

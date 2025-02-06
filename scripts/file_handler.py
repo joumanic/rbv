@@ -36,12 +36,3 @@ class FileHandler:
             logging.error(f"Failed to open image: {e}")
             return None
         
-    def get_font(self, font_file_name='din2014_demi.otf'):
-        # Load and return font file for the current month
-        try:
-            fontFile = self.dropbox_service.download_file(file_path=os.path.join(os.getenv('DROPBOX_RBV_BRAND_FOLDER'),'din2014_demi.otf'))
-            font = BytesIO(fontFile)
-            return font
-        except IOError as e:
-            logging.error(f"Failed to load custom font '{font_file_name}': {e}")
-

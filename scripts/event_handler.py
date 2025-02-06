@@ -7,8 +7,8 @@ class EventHandler:
     
     def handle_event(self, event):
         if event == "create social media assets":
-            logging.info("Create Social Media Assets Task Started")
-            self.rbv.create_social_media_assets()
+            logging.info("Create Show Social Media Assets Task Started")
+            self.rbv.create_show_social_media_assets()
             logging.info("Finished Create Social Media Assets Event")
         elif event ==  "create monthly color assets":
             logging.info("Create Monthly Assets Task Started")

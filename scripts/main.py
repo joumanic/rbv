@@ -8,7 +8,7 @@ if __name__ == "__main__":
     
     handler = EventHandler()
     scheduler = BlockingScheduler(timezone=pytz.UTC)
-    handler.handle_event("create monthly color assets")
+    #handler.handle_event("create monthly color assets")
     handler.handle_event("create social media assets")
     
     #scheduler.add_job(lambda:handler.handle_event("create social media assets"), 'cron', day_of_week='sat', hour=12, minute=0)
