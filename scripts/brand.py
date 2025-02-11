@@ -63,7 +63,7 @@ class RadioBuenaVida:
 
                 rbvLogo = image_processor.convert_image(img=rbvLogo, convert_to="RGBA")
 
-                imgSquare = image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.05,0.075))
+                imgSquare = image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.02,0.075))
 
                 websiteLogoResponse = self.dropbox_service.download_file(file_path=rbvBrand["websiteLogoFilePath"])
 
@@ -71,7 +71,7 @@ class RadioBuenaVida:
 
                 rbvWebsiteLogo = image_processor.convert_image(img=rbvWebsiteLogo,convert_to="RGBA")
 
-                imgSquare = image_processor.overlay_image(imgSquare, rbvWebsiteLogo, 0.25, offsetPercentage=(0.05,0.025))
+                imgSquare = image_processor.overlay_image(imgSquare, rbvWebsiteLogo, 0.25, offsetPercentage=(0.02,0.025))
 
                 rbvImg = image_processor.resize_to_square_canvas(img=imgSquare)
 

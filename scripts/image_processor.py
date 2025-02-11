@@ -197,7 +197,7 @@ def overlay_image(img: Image, overlayImage: Image,logoRatio=0.1,offsetPercentage
     # Save the result
     return img
 
-def replace_colors_in_image(img_byte: BytesIO, color_map: dict)->Image:
+def replace_colors_in_imageOld(img_byte: BytesIO, color_map: dict)->Image:
     """
     Replace specific colors in an image with new colors as defined in a color map.
     Args:
@@ -238,7 +238,7 @@ def replace_colors_in_image(img_byte: BytesIO, color_map: dict)->Image:
 
 
     
-def replace_colors_in_imageNew(img_byte: BytesIO, color_map: dict)->Image:
+def replace_colors_in_image(img_byte: BytesIO, color_map: dict)->Image:
     """
     Replace specific colors in an image with new colors as defined in a color map.
     Args:
@@ -258,22 +258,14 @@ def replace_colors_in_imageNew(img_byte: BytesIO, color_map: dict)->Image:
 
             # Get image data and attempt replacements
             data = img.getdata()
-            new_data = []
-            for pixel in data:
-                original_color = pixel[:3]
-                if original_color in color_map:
-                    new_color = color_map[original_color]
-                    # Blend the original and new color for a smoother transition
-                    blended_color = tuple(
-                        int(original_color[i] * 0.5 + new_color[i] * 0.5) for i in range(3)
-                    ) + (pixel[3],)  # Preserve the alpha channel
-                    new_data.append(blended_color)
-                else:
-                    new_data.append(pixel)
-
+            new_data = [
+                color_map.get(pixel[:3], pixel) if pixel[3] > 0 else pixel  # Replace pixel if in color_map and not transparent, else keep original
+                for pixel in data
+            ]
+            
             # Apply modified pixel data
             img.putdata(new_data)
-            logging.info("Color replacement with smooth transition completed successfully.")
+            logging.info("Color replacement completed successfully.")
             
             # Return a copy of the modified image outside the `with` block
             return img.copy()
