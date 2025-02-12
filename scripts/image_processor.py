@@ -133,9 +133,9 @@ def add_text(img, text, font, rectangle_color, is_genre=False)->Image:
     PIL.Image.Image: The image with the added text and rounded rectangle background.
     """
     
-    font_size = 32
+    font_size = 40
     if is_genre:
-        text_position = (50, 101)
+        text_position = (50, 110)
     else:
         text_position = (50, 32)
     font_img = ImageFont.truetype(font, font_size)
@@ -155,7 +155,7 @@ def add_text(img, text, font, rectangle_color, is_genre=False)->Image:
         text_position[0] - rectangle_margin_width - 4 ,
         text_position[1] - rectangle_margin_height ,
         text_position[0] + rectangle_margin_width + text_size[0],
-        text_position[1] + rectangle_margin_height +  38
+        text_position[1] + rectangle_margin_height +  48
     )
 
     draw_rounded_rectangle(draw, rounded_rect_size, radius, fill=rectangle_color)  # Draw rectangle
