@@ -44,7 +44,7 @@ class RadioBuenaVida:
 
                 img = self.file_handler.open_image(image_data=(self.dropbox_service.download_shareable_link(show["show_image"])))
 
-                imgBlurZoom = image_processor.zoom(image_processor.blur((img)))
+                imgBlurZoom = image_processor.zoom(image_processor.blur(img, blurFactor=3))
 
                 imgSquare = image_processor.square_image(img=imgBlurZoom)
 

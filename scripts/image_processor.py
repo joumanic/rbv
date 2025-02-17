@@ -15,8 +15,20 @@ def apply_transformations( img):
     # Transform image by blurring, zooming, masking
     return img
 
-def blur( img, blurFactor: float = 15):
-    imgBlurred = img.filter(ImageFilter.GaussianBlur(blurFactor))
+def blur(img, blurFactor: float = 3):
+    """
+    Apply a Gaussian blur to the image. The blur factor is adjusted dynamically based on the image size.
+
+    Args:
+        img (Image): The input image to be blurred.
+        blurFactor (float, optional): The base blur factor. Defaults to 15.
+
+    Returns:
+        Image: The blurred image.
+    """
+    # Calculate dynamic blur factor based on image size
+    dynamicBlurFactor = blurFactor * (min(img.size) / 1000)
+    imgBlurred = img.filter(ImageFilter.GaussianBlur(dynamicBlurFactor))
     return imgBlurred
 
 def zoom( img, zoomFactor: float = 1.5) -> Image:
@@ -42,12 +54,14 @@ def square_image(img: Image)->Image:
     imgSquare.paste(img, offset)
     return imgSquare
 
+
 def resize_to_square_canvas(img: Image):
     """
     Resize an image to fit within a square canvas of 1080x1080 pixels.
 
     This method creates a new square image with a white background and pastes
     the resized image in the center, maintaining the aspect ratio of the original image.
+    If the image is smaller than 1080x1080, it will be upscaled to fit the canvas.
 
     Args:
         img (Image): The input image to be resized and centered on the square canvas.
@@ -57,6 +71,11 @@ def resize_to_square_canvas(img: Image):
     """
     size = 1080
     imgSquare = Image.new("RGB", (size, size), (255, 255, 255))
+    
+    # Check if the image is smaller than 1080x1080 and upscale if necessary
+    if img.width < size or img.height < size:
+        img = img.resize((size, size), Image.LANCZOS)
+    
     img.thumbnail((size, size), Image.LANCZOS)
     offset = ((size - img.width) // 2, (size - img.height) // 2)
     imgSquare.paste(img, offset)
@@ -196,46 +215,6 @@ def overlay_image(img: Image, overlayImage: Image,logoRatio=0.1,offsetPercentage
 
     # Save the result
     return img
-
-def replace_colors_in_imageOld(img_byte: BytesIO, color_map: dict)->Image:
-    """
-    Replace specific colors in an image with new colors as defined in a color map.
-    Args:
-        img_byte (BytesIO): A BytesIO object containing the image data.
-        color_map (dict): A dictionary mapping original RGB color tuples to new RGB color tuples.
-    Returns:
-        Image: A PIL Image object with the colors replaced, or None if an error occurs.
-    Raises:
-        IOError: If the image cannot be opened or processed.
-        Exception: For any other unexpected errors.
-    """
-    try:
-        # Attempt to open the image
-        with Image.open(img_byte) as img:
-            img = img.convert("RGBA")
-            logging.info("Image successfully opened and converted to RGBA mode.")
-
-            # Get image data and attempt replacements
-            data = img.getdata()
-            new_data = [
-                color_map.get(pixel[:3], pixel)  # Replace pixel if in color_map, else keep original
-                for pixel in data
-            ]
-            
-            # Apply modified pixel data
-            img.putdata(new_data)
-            logging.info("Color replacement completed successfully.")
-            
-            # Return a copy of the modified image outside the `with` block
-            return img.copy()
-            
-    except IOError as e:
-        logging.error(f"Failed to open or process image data: {e}")
-        return None
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
-        return None
-
 
     
 def replace_colors_in_image(img_byte: BytesIO, color_map: dict)->Image:
