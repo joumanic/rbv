@@ -71,7 +71,7 @@ function MultiStepForm() {
     formDataToSubmit.append('genre3', formData.genres.genre3);
     formDataToSubmit.append('socials', formData.socials);
     formDataToSubmit.append('show_date', formData.showDate);
-    formDataToSubmit.append('show_image_url', formData.showImage);
+    formDataToSubmit.append('show_image', formData.showImage);
 
     // If you are hosting guests, you may want to handle that too
     formData.guests.forEach((guest, index) => {

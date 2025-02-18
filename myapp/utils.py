@@ -19,9 +19,7 @@ def handle_upload(request):
         show_image = request.FILES['show_image']
         
         # Upload the file to Dropbox and get the URL
-        dropbox_url = upload_to_dropbox(show_image)
-        print(dropbox_url)
-        
+        dropbox_url = upload_to_dropbox(show_image)        
         if dropbox_url:
             return JsonResponse({"status": "success", "url": dropbox_url})
         else:
