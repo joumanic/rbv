@@ -18,8 +18,8 @@ class RadioShowCreateView(APIView):
             show = serializer.save()  
             print(request.__dict__)
             # Check if there's an image file being uploaded
-            if 'show_image' in request.FILES:
-                file = request.FILES['show_image']
+            if 'show_image_url' in request.FILES:
+                file = request.FILES['show_image_url']
 
                 # Upload the file to Dropbox
                 show_image_url = handle_upload(file)

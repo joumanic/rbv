@@ -15,11 +15,13 @@ def upload_to_dropbox(file):
         return None
 
 def handle_upload(request):
-    if request.method == 'POST' and request.FILES.get('show_image'):
-        show_image = request.FILES['show_image']
+    if request.method == 'POST' and request.FILES.get('show_image_url'):
+        show_image = request.FILES['show_image_url']
         
         # Upload the file to Dropbox and get the URL
-        dropbox_url = upload_to_dropbox(show_image)        
+        dropbox_url = upload_to_dropbox(show_image)
+        print(dropbox_url)
+        
         if dropbox_url:
             return JsonResponse({"status": "success", "url": dropbox_url})
         else:

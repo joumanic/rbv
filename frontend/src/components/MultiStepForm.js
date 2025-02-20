@@ -28,7 +28,21 @@ function MultiStepForm() {
   const prevStep = () => setStep(step - 1);
   
   const handleFormDataChange = (name) => (event) => {
-    const value = name === 'showDate' ? format(event, 'yyyy-MM-dd') : event.target.value;
+    let value;
+  
+    // Check if the name is related to the showDate
+    if (name === 'showDate') {
+      value = format(event, 'yyyy-MM-dd');
+    } 
+    // If it's a URL (like the show image), handle it as a URL
+    else if (name === 'showImage') {
+      value = event.target.value; // Treat the value as the URL string
+    }
+    // Handle all other inputs as normal text input
+    else {
+      value = event.target.value;
+    }
+  
     if (name.includes('.')) {
       const [mainField, subField] = name.split('.');
       setFormData((prevFormData) => ({
@@ -45,6 +59,7 @@ function MultiStepForm() {
       }));
     }
   };
+  
   
   const handleGuestChange = (index) => (event) => {
     const newGuests = [...formData.guests];
@@ -71,7 +86,7 @@ function MultiStepForm() {
     formDataToSubmit.append('genre3', formData.genres.genre3);
     formDataToSubmit.append('socials', formData.socials);
     formDataToSubmit.append('show_date', formData.showDate);
-    formDataToSubmit.append('show_image', formData.showImage);
+    formDataToSubmit.append('show_image_url', formData.showImage);
 
     // If you are hosting guests, you may want to handle that too
     formData.guests.forEach((guest, index) => {

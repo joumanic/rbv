@@ -59,7 +59,8 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    config('REACT_APP_API_BASE_URL'),
+    config('REACT_APP_API_BASE_URL_RENDER'),
+    config('REACT_APP_API_BASE_URL')
 ]
 ROOT_URLCONF = 'radio_buena_vida.urls'
 

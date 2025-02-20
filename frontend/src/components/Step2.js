@@ -3,6 +3,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, nextStep, prevStep }) {
+    const handleFileChange = (event) => {
+      const file = event.target.files[0]; // Get the first selected file
+      if (file) {
+        handleFormDataChange('showImage')(file);  // Store the file object in state
+      }
+    };
     const handleDateChange = (date) => {
         try {
           // If the date is null or an invalid value, we prevent the error and reset to empty string
@@ -98,9 +104,9 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
         placeholderText="Select a date"
       />
       <label>Show Image:
-        <input 
-          type="file" 
-          onChange={handleFormDataChange('showImage')} 
+        <input type="file" 
+        accept="image/*" 
+        onChange={handleFormDataChange('showImage')} 
         />
       </label>
 
