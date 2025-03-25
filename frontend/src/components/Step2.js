@@ -2,13 +2,8 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, nextStep, prevStep }) {
-    const handleFileChange = (event) => {
-      const file = event.target.files[0]; // Get the first selected file
-      if (file) {
-        handleFormDataChange('showImage')(file);  // Store the file object in state
-      }
-    };
+function Step2({ formData, handleFormDataChange, handleFileChange, handleGuestChange, addGuest, nextStep, prevStep }) {
+
     const handleDateChange = (date) => {
         try {
           // If the date is null or an invalid value, we prevent the error and reset to empty string
@@ -25,7 +20,18 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
     <div className="step-form">
       <h2 className="form-title">Fill in the Radio Show Details</h2>
 
-      <label>Show Name:
+      <label><b>Email:</b>
+        <input 
+          type="text" 
+          value={formData.email} 
+          onChange={handleFormDataChange('email')} 
+        />
+      </label>
+
+      <label><b>Show Name:</b>
+        <div class="small-text">(please write it exactly as you’d like it to appear
+including capital letters and any symbols e.g “The Rise Up Show w/ Speedy” or
+“DJ Uncomfortable” or “Gorbals After Hours”)</div>
         <input 
           type="text" 
           value={formData.showName} 
@@ -33,7 +39,7 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
         />
       </label>
 
-      <label>Host Name:
+      <label><b>Host Name:</b>
         <input 
           type="text" 
           value={formData.hostName} 
@@ -41,7 +47,10 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
         />
       </label>
 
-      <label>Are you hosting a guest?
+      <label><b>Are you hosting a guest?</b>
+      <div class="small-text">(their names will be added after the above
+show name and …..&amp; Guest name – e.g “The Rise Up Show w/ Speedy &amp; DJ
+Breakfast Cereal”)</div>
         <input 
           type="checkbox" 
           checked={formData.isHostingGuest} 
@@ -64,7 +73,9 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
           <button className="btn" onClick={addGuest}>Add Guest</button>
         </>
       )}
-
+      <label><b>GENRES: </b>we can add up to 3 music genres or describers to explain the
+general vibe/style/theme of your show (e.g. amapiano, jazz, hip hop,
+community, interview)</label>
       <label>Genre 1:
         <input 
           type="text" 
@@ -87,7 +98,9 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
         />
       </label>
 
-      <label>Social URLs:
+      <label><b>Social URLs:</b>
+      <div class="small-text">(please paste the actual URL link not
+        just the name)</div>
         <input 
           type="text" 
           value={formData.socials} 
@@ -95,18 +108,19 @@ function Step2({ formData, handleFormDataChange, handleGuestChange, addGuest, ne
         />
       </label>
 
-      <label>Show Date:</label>
+      <label><b>Show Date:</b>
       <DatePicker
         selected={formData.showDate ? new Date(formData.showDate) : null} // Convert to Date or null
         onChange={handleDateChange}
         dateFormat="yyyy-MM-dd"
         className="form-control"
         placeholderText="Select a date"
-      />
-      <label>Show Image:
+      /></label>
+  
+      <label><b>Show Image:</b>
         <input type="file" 
         accept="image/*" 
-        onChange={handleFormDataChange('showImage')} 
+        onChange={handleFileChange} 
         />
       </label>
 

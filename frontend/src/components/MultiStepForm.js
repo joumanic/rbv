@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 function MultiStepForm() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    email: '',
     hostName: '',
     showName: '',
     genres: {
@@ -26,6 +27,16 @@ function MultiStepForm() {
   
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
+  
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]; // Get the selected file
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        showImage: file, // Store the file object, not just a string
+      }));
+    }
+  };
   
   const handleFormDataChange = (name) => (event) => {
     let value;
@@ -78,7 +89,15 @@ function MultiStepForm() {
   };
 
   const handleSubmit = () => {
+    // First, check if an image is selected
+    if (!formData.showImage) {
+      console.error("No image selected.");
+      return;
+    }
+  
+    // Create FormData for the radio show and the image
     const formDataToSubmit = new FormData();
+    formDataToSubmit.append('email', formData.email);
     formDataToSubmit.append('host_name', formData.hostName);
     formDataToSubmit.append('show_name', formData.showName);
     formDataToSubmit.append('genre1', formData.genres.genre1);
@@ -86,25 +105,25 @@ function MultiStepForm() {
     formDataToSubmit.append('genre3', formData.genres.genre3);
     formDataToSubmit.append('socials', formData.socials);
     formDataToSubmit.append('show_date', formData.showDate);
-    formDataToSubmit.append('show_image_url', formData.showImage);
-
-    // If you are hosting guests, you may want to handle that too
+    formDataToSubmit.append('show_image_url', formData.showImage); // Append the image file directly
+  
+    // Handle guests if needed
     formData.guests.forEach((guest, index) => {
-      formDataToSubmit.append(`guest${index + 1}`, guest); // Append each guest
+      formDataToSubmit.append(`guest${index + 1}`, guest);
     });
-
+  
+    // Now send the form data to create the radio show
     axios.post(`${process.env.REACT_APP_API_BASE_URL_RENDER}/api/radio-show/`, formDataToSubmit)
-    .then(response => {
-      console.log("Success:", response);
-      nextStep();
-      // Handle success (e.g., navigate to a success page)
-    })
-    .catch(error => {
-      console.error("Error:", error);
-      // Handle error (e.g., show error message)
-    });
+      .then(response => {
+        console.log("Success:", response);
+        nextStep(); // Go to the next step
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        // Handle error (e.g., show error message)
+      });
   };
-
+  
   switch (step) {
     case 1:
       return <Step1 nextStep={nextStep} />;
@@ -114,6 +133,7 @@ function MultiStepForm() {
           formData={formData}
           handleFormDataChange={handleFormDataChange}
           handleGuestChange={handleGuestChange}
+          handleFileChange={handleFileChange}
           addGuest={addGuest}
           nextStep={handleSubmit}
           prevStep={prevStep}

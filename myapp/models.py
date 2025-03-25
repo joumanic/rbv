@@ -4,6 +4,7 @@ import json
 # Create your models here.
 
 class RadioShow(models.Model):
+    email = models.CharField(max_length=255, default='')
     host_name = models.CharField(max_length=255)
     show_name = models.CharField(max_length=255)
     genre1 = models.CharField(max_length=100, default='')
