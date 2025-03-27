@@ -48,7 +48,7 @@ class RadioBuenaVida:
 
                 imgSquare = image_processor.square_image(img=imgBlurZoom)
 
-                img = image_processor.circle_mask(img=img, borderColour=rbvBrand['rgbColor'], borderthicknessRatio=0.04)
+                img = image_processor.circle_mask(img=img, borderColour=rbvBrand['rgbColor'], borderthicknessRatio=0.08)
 
                 maskedImagePosition  = (
                     (imgSquare.width - img.width) // 2,
@@ -63,7 +63,7 @@ class RadioBuenaVida:
 
                 rbvLogo = image_processor.convert_image(img=rbvLogo, convert_to="RGBA")
 
-                imgSquare = image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.02,0.085))
+                imgSquare = image_processor.overlay_image(imgSquare, rbvLogo, 0.25, offsetPercentage=(0.02,0.080))
 
                 websiteLogoResponse = self.dropbox_service.download_file(file_path=rbvBrand["websiteLogoFilePath"])
 

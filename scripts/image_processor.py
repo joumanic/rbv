@@ -92,7 +92,7 @@ def circle_mask(img: Image, borderColour: tuple, borderthicknessRatio: float = 0
         Image: The resulting image with the circular mask and optional border applied.
     """
     # Calculate the diamter of the circle
-    diameter = min(img.size[0], img.size[1]) * 0.95
+    diameter = min(img.size[0], img.size[1]) * 0.90
     
     # Create a circular mask based on the image size
     mask = Image.new('L', img.size, 0)
