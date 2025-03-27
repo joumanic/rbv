@@ -13,7 +13,7 @@ class RadioShow(models.Model):
     socials = models.TextField(blank=True, null=True)
     show_date = models.DateField(blank=True, null=True)
     show_image = models.URLField(max_length=200, blank=True, null=True) 
-
+    pre_record = models.URLField(max_length=200, blank=True, null=True)
     def set_socials(self, socials_list):
         self.socials = json.dumps(socials_list)  # Serialize list as JSON
 

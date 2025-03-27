@@ -21,6 +21,7 @@ function MultiStepForm() {
     socials: '',
     showDate: null, // Initialize as null or a default date
     showImage: null,
+    preRecord: null,
     guests: [],
     isHostingGuest: false,
   });
@@ -30,10 +31,12 @@ function MultiStepForm() {
   
   const handleFileChange = (event) => {
     const file = event.target.files[0]; // Get the selected file
+    const { name } = event.target; // Get the input field's name attribute
+  
     if (file) {
       setFormData((prev) => ({
         ...prev,
-        showImage: file, // Store the file object, not just a string
+        [name]: file, // Dynamically update either showImage or preRecord based on input name
       }));
     }
   };
@@ -105,7 +108,8 @@ function MultiStepForm() {
     formDataToSubmit.append('genre3', formData.genres.genre3);
     formDataToSubmit.append('socials', formData.socials);
     formDataToSubmit.append('show_date', formData.showDate);
-    formDataToSubmit.append('show_image_url', formData.showImage); // Append the image file directly
+    formDataToSubmit.append('show_image_url', formData.showImage);
+    formDataToSubmit.append('pre_record_url', formData.preRecord);  // Append the image file directly
   
     // Handle guests if needed
     formData.guests.forEach((guest, index) => {

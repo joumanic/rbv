@@ -120,6 +120,15 @@ community, interview)</label>
       <label><b>Show Image:</b>
         <input type="file" 
         accept="image/*" 
+        name="showImage"
+        onChange={handleFileChange} 
+        />
+      </label>
+
+      <label><b>Pre-Record:</b>
+        <input type="file" 
+        accept="audio/*" 
+        name="preRecord"
         onChange={handleFileChange} 
         />
       </label>

@@ -11,45 +11,56 @@ from django.http import JsonResponse
 def index(request):
     return render(request, 'build/index.html')
 
-def handle_upload(request):
-    if request.method == 'POST' and 'show_image_url' in request.FILES:
-        show_image = request.FILES['show_image_url']
+def handle_upload(request, file_key, show_name, show_date, genre1, genre2, genre3):
+    if request.method == 'POST' and file_key in request.FILES:
+        file = request.FILES[file_key]
         
         # Upload the file to Dropbox
-        dropbox_url = upload_to_dropbox(request, show_image)
+        dropbox_url = upload_to_dropbox(request, file, show_name, show_date, genre1, genre2, genre3)
         
         if dropbox_url:
-            return dropbox_url  # Just return the URL directly
+            return dropbox_url  # Return the URL directly
         else:
             return None  # Return None if upload fails
     
     return None  # Return None if no file is uploaded
 
+
 class RadioShowCreateView(APIView):
 
-  def post(self, request):
+    def post(self, request):
         # First, serialize the radio show data
         serializer = RadioShowSerializer(data=request.data)
         if serializer.is_valid():
-            # Create the show instance (without the image URL yet)
+            # Create the show instance (without media URLs yet)
             show = serializer.save()
 
-            # Check if there is an image file being uploaded
+            # Handle image upload if provided
             if 'show_image_url' in request.FILES:
-                image_file = request.FILES['show_image_url']
-                # Upload the image to Dropbox (or any other service you're using)
-                dropbox_url = upload_to_dropbox(request, image_file)
-                
-                if dropbox_url:
-                    # Update the show instance with the uploaded image URL
-                    show.show_image_url = dropbox_url
-                    show.save()  # Save the show with the image URL
-
+                image_url = handle_upload(
+                    request, 'show_image_url',
+                    show.show_name, show.show_date, show.genre1, show.genre2, show.genre3
+                )
+                if image_url:
+                    show.show_image_url = image_url
                 else:
-                    # If upload fails, return an error
                     return JsonResponse({"status": "error", "message": "Failed to upload image to Dropbox"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # If all goes well, return success message
+            # Handle pre-recorded audio upload if provided
+            if 'pre_record_url' in request.FILES:
+                audio_url = handle_upload(
+                    request, 'pre_record_url',
+                    show.show_name, show.show_date, show.genre1, show.genre2, show.genre3
+                )
+                if audio_url:
+                    show.pre_record_url = audio_url
+                else:
+                    return JsonResponse({"status": "error", "message": "Failed to upload pre-recorded audio to Dropbox"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save the show with updated URLs
+            show.save()
+
+            # Return success message
             return Response({"message": "Radio show created successfully!"}, status=status.HTTP_201_CREATED)
 
         # If serializer is not valid, return validation errors
