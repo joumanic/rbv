@@ -52,6 +52,7 @@ class DropboxService:
             return new_access_token
         else:
             raise Exception("Failed to refresh access token: {}".format(response.json()))
+        
     def _retry_on_auth_error(self, func, *args, **kwargs):
         """Retry a Dropbox SDK operation if AuthError occurs."""
         try:

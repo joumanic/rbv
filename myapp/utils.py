@@ -2,9 +2,11 @@ import dropbox
 from decouple import config
 import os
 import mimetypes
+from scripts.dbx.files import DropboxService
 
 access_token = os.getenv('DROPBOX_ACCESS_TOKEN')
-dbx = dropbox.Dropbox(access_token)
+dbx = DropboxService()
+dbx = dbx._dbx
 
 def upload_to_dropbox(request, file, show_name, show_date, genre1, genre2, genre3):
     # First, verify that the access token is working
