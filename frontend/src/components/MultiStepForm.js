@@ -130,17 +130,18 @@ function MultiStepForm() {
   
   switch (step) {
     case 1:
-      return <Step1 nextStep={nextStep} />;
-    case 2:
-      return (
-        <Step2
-          formData={formData}
+      return <Step1 
+                formData={formData}
           handleFormDataChange={handleFormDataChange}
           handleGuestChange={handleGuestChange}
           handleFileChange={handleFileChange}
           addGuest={addGuest}
           nextStep={handleSubmit}
-          prevStep={prevStep}
+          prevStep={prevStep}/>;
+    case 2:
+      return (
+        <Step2
+        nextStep={nextStep} 
         />
       );
     case 3:

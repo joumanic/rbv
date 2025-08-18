@@ -6,16 +6,16 @@ from scripts.dbx.files import DropboxService
 
 access_token = os.getenv('DROPBOX_ACCESS_TOKEN')
 dbx = DropboxService()
-dbx = dbx._dbx
+# dbx = dbx._dbx
 
 def upload_to_dropbox(request, file, show_name, show_date, genre1, genre2, genre3):
     # First, verify that the access token is working
-    try:
-        account_info = dbx.users_get_current_account()
-        print("Account Info:", account_info)
-    except dropbox.exceptions.AuthError as e:
-        print(f"Authentication failed: {e}")
-        return None
+    # try:
+    #     account_info = dbx.users_get_current_account()
+    #     print("Account Info:", account_info)
+    # except dropbox.exceptions.AuthError as e:
+    #     print(f"Authentication failed: {e}")
+    #     return None
 
     # Determine file type
     mime_type, _ = mimetypes.guess_type(file.name)
@@ -41,8 +41,8 @@ def upload_to_dropbox(request, file, show_name, show_date, genre1, genre2, genre
 
     try:
         # Upload the file to Dropbox
-        response = dbx.files_upload(file.read(), file_path, mute=True)
-        shared_link_metadata = dbx.sharing_create_shared_link_with_settings(response.path_display)
+        response = dbx.upload_file(file_path, file.read())
+        shared_link_metadata = dbx._dbx.sharing_create_shared_link_with_settings(response.path_display)
         return shared_link_metadata.url  # Return URL if successful
     except Exception as e:
         print(f"Error uploading to Dropbox: {e}")
