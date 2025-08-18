@@ -121,6 +121,14 @@ class DropboxService:
         # Decode any URL-encoded characters
         return unquote(filename)
 
+    def sharing_create_shared_link_with_settings(self, path: str):
+        """Creates a shared link for a file or folder."""
+        try:
+            return self._retry_on_auth_error(self._dbx.sharing_create_shared_link_with_settings, path)
+        except ApiError as e:
+            logging.error(f"Failed to create shared link: {e}")
+            return None
+
     def download_shareable_link(self, link:str):
         try:
             # Modify the link to ensure it downloads the file

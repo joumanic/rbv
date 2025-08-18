@@ -42,7 +42,7 @@ def upload_to_dropbox(request, file, show_name, show_date, genre1, genre2, genre
     try:
         # Upload the file to Dropbox
         response = dbx.upload_file(file_path, file.read())
-        shared_link_metadata = dbx._dbx.sharing_create_shared_link_with_settings(response.path_display)
+        shared_link_metadata = dbx.sharing_create_shared_link_with_settings(response.path_display)
         return shared_link_metadata.url  # Return URL if successful
     except Exception as e:
         print(f"Error uploading to Dropbox: {e}")
